@@ -33124,6 +33124,7 @@ var app = (function () {
 
     const app = new App({
     	target: document.body,
+      hydrate: true
     	// props: {
     	// 	test: 'world'
     	// }
