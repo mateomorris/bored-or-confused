@@ -12,24 +12,24 @@
 
 	let name = ''; 
 	let signedIn = false;
-	let allFeedback = [];
+	let feedback = [];
 
 	function addName(name) {
 		signedIn = true;
 		name = name;
 
-		const feedback = db.collection('feedback').where('name', '==', name);
+		const feedbackFromServer = db.collection('feedback').where('name', '==', name);
 
-		collectionData(feedback, 'id')
+		collectionData(feedbackFromServer, 'id')
 		// .pipe(
 		//   tap(feedback => console.log(feedback))
 		// )
 		.subscribe(newFeedback => {
-			allFeedback = newFeedback
+			feedback = newFeedback
 				.sort((a, b) => (a.created < b.created) ? 1 : -1)
-				.map(stuff => ({
-				...stuff,
-				created: moment(stuff.created).fromNow()
+				.map(data => ({
+				...data,
+				created: moment(data.created).fromNow()
 			}));
 		})
 	}
@@ -48,7 +48,7 @@
 <div class="section">
   <h1 class="title">Bored or Confused</h1>
   <h2 class="subtitle">
-    A tool for discreetly giving live feedback to an instructor while they're lecturing. Great for introverts. 
+    A tool for discreetly giving feedback to an instructor while they're lecturing. Great for introverts. 
   </h2>
 
   {#if signedIn}
@@ -61,7 +61,7 @@
       </div>
     </div>
     <hr/>
-    {#each allFeedback as item}
+    {#each feedback as item}
       <FeedbackSent item={item}/>
     {/each}
   {:else}
@@ -73,26 +73,4 @@
       </div>
     </div>
   {/if}
-
-<!-- <div class="box">
-  <article class="media">
-    <div class="media-left">
-      <figure class="image is-64x64">
-        <img src="https://bulma.io/images/placeholders/128x128.png" alt="Image">
-      </figure>
-    </div>
-    <div class="media-content">
-      <div class="content">
-        <p>
-          <strong>John Smith</strong>
-        </p>
-      </div>
-      <nav class="level is-mobile">
-        <div class="level-left">
-          <h2 class="title is-2">👍</h2>
-        </div>
-      </nav>
-    </div>
-  </article>
-</div> -->
 </div>
