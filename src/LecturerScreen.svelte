@@ -1,6 +1,5 @@
 <script>
-
-	import { fade } from 'svelte/transition';
+	import { fly, fade } from 'svelte/transition';
   import { db } from './firebase';
   import { collectionData } from 'rxfire/firestore';
 	import { tap } from 'rxjs/operators';
@@ -30,7 +29,7 @@
 	
 </script>
 
-<div class="section">
+<div class="section" in:fly="{{ y: -100, duration: 1000 }}">
   <section class="hero is-dark">
     <div class="hero-body">
       <div class="container">
@@ -44,9 +43,9 @@
     </div>
   </section>
   <hr/>
-  {#each allFeedback as item}
+  {#each allFeedback as item (item.created)}
     {#if item.created >= clearDate}
-      <FeedbackReceived item={item}/>
+      <FeedbackReceived item={item} key={item.created}/>
     {/if}
   {/each}
 

@@ -1,6 +1,6 @@
 <script>
 
-	import { fade } from 'svelte/transition';
+	import { fly, fade } from 'svelte/transition';
   import { db } from './firebase';
   import { collectionData } from 'rxfire/firestore';
 	import { tap } from 'rxjs/operators';
@@ -13,6 +13,7 @@
 	let name = ''; 
 	let signedIn = false;
 	let feedback = [];
+  let clearDate = new Date();
 
 	function addName(name) {
 		signedIn = true;
@@ -29,7 +30,7 @@
 				.sort((a, b) => (a.created < b.created) ? 1 : -1)
 				.map(data => ({
 				...data,
-				created: moment(data.created).fromNow()
+      	formattedTime: moment(data.created).fromNow()
 			}));
 		})
 	}
@@ -45,7 +46,7 @@
 	
 </script>
 
-<div class="section">
+<div class="section" in:fly="{{ y: -100, duration: 1000 }}">
   <h1 class="title">Bored or Confused</h1>
   <h2 class="subtitle">
     A tool for discreetly giving feedback to an instructor while they're lecturing. Great for introverts. 
@@ -61,8 +62,10 @@
       </div>
     </div>
     <hr/>
-    {#each feedback as item}
-      <FeedbackSent item={item}/>
+    {#each feedback as item (item.created)}
+		  {#if item.created >= clearDate}
+      	<FeedbackSent item={item}/>
+    	{/if}
     {/each}
   {:else}
     <div class="field">
