@@ -33123,8 +33123,7 @@ var app = (function () {
     }
 
     const app = new App({
-    	target: document.body,
-      hydrate: true
+    	target: document.body
     	// props: {
     	// 	test: 'world'
     	// }
