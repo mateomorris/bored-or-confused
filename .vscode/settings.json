@@ -1,0 +1,12 @@
+{
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#1A303B",
+    "titleBar.activeBackground": "#254353",
+    "titleBar.activeForeground": "#F8FAFC"
+  },
+  {
+    "files.associations": {
+      "*.svelte": "html"
+    }
+  }
+}
