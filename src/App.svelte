@@ -35,7 +35,7 @@
 				<StudentScreen/>
 			</Route>
 			<Route path="/admin">
-				<LecturerScreen/>
+				<LecturerScreen/> 
 			</Route>
 		</div>
 	</Router>
