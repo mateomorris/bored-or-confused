@@ -51,6 +51,7 @@
           display: flex;
           justify-content: center;
           align-items: center;
+          flex-direction: column;
           height: 100vh;
         }
 
@@ -59,6 +60,16 @@
           color:white;
           text-align:center;
           font-size: 10vw;
+          margin-bottom: 0;
+        }
+
+        #container > h2 {
+          font-family:sans-serif;
+          color:white;
+          text-align:center;
+          font-size: 5vw;
+          margin-top: 0.25rem;
+          font-weight: 400;
         }
 
         #container span {
@@ -69,6 +80,9 @@
         <h1>
           Class ID: <span>${classId}</span>
         </h1>
+        <h2>
+          boredorconfused.com
+        </h2>
       </div>
     `;
   }
