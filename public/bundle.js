@@ -31329,19 +31329,19 @@ var app = (function () {
     			button1 = element("button");
     			button1.textContent = "Instructor";
     			attr(h1, "class", "title");
-    			add_location(h1, file$4, 18, 0, 244);
+    			add_location(h1, file$4, 18, 0, 243);
     			attr(h2, "class", "subtitle");
-    			add_location(h2, file$4, 19, 0, 285);
-    			attr(button0, "class", "button is-large is-fullwidth is-info svelte-tkucug");
-    			add_location(button0, file$4, 24, 4, 466);
+    			add_location(h2, file$4, 19, 0, 284);
+    			attr(button0, "class", "button is-large is-fullwidth is-info svelte-1n6ce34");
+    			add_location(button0, file$4, 24, 4, 465);
     			attr(div0, "class", "column");
-    			add_location(div0, file$4, 23, 2, 441);
-    			attr(button1, "class", "button is-large is-fullwidth is-success svelte-tkucug");
-    			add_location(button1, file$4, 27, 4, 613);
+    			add_location(div0, file$4, 23, 2, 440);
+    			attr(button1, "class", "button is-large is-fullwidth is-success svelte-1n6ce34");
+    			add_location(button1, file$4, 27, 4, 612);
     			attr(div1, "class", "column");
-    			add_location(div1, file$4, 26, 2, 588);
+    			add_location(div1, file$4, 26, 2, 587);
     			attr(div2, "class", "columns");
-    			add_location(div2, file$4, 22, 0, 417);
+    			add_location(div2, file$4, 22, 0, 416);
 
     			dispose = [
     				listen(button0, "click", ctx.click_handler),
