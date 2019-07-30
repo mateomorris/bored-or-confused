@@ -12,7 +12,7 @@
 
 <style>
 	.button {
-		height: 30rem;
+		height: 50vh;
 	}
 </style>
 
