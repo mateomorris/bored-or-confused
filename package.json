@@ -16,8 +16,8 @@
     "firebase": "^6.3.3",
     "rxfire": "^3.6.8",
     "rxjs": "^6.5.2",
-    "sirv-cli": "^0.4.4",
-    "svelte-routing": "^1.2.1"
+    "short-unique-id": "^1.1.1",
+    "sirv-cli": "^0.4.4"
   },
   "scripts": {
     "build": "rollup -c",

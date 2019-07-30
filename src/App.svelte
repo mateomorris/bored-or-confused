@@ -3,16 +3,22 @@
 </svelte:head>
 
 <script>
-	import { fade } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
   import { db } from './firebase';
   import { collectionData } from 'rxfire/firestore';
 	import { tap } from 'rxjs/operators';
 	import { object } from 'rxfire/database';
 	import moment from 'moment'
-	import { Router, Link, Route } from "svelte-routing";
 
 	import StudentScreen from './StudentScreen.svelte';
 	import LecturerScreen from './LecturerScreen.svelte';
+	import LandingScreen from './screens/LandingScreen.svelte';
+
+	let screen = 'landing';
+
+	function navigate({ detail }) {
+		screen = detail.screen;
+	}
 	
 </script>
 
@@ -21,25 +27,16 @@
 </style>
 
 <body>
-	<div class="container">
-
-
-	<Router url="">
-		<!-- <nav>
-			<Link to="/">Home</Link>
-			<Link to="about">About</Link>
-			<Link to="blog">Blog</Link>
-		</nav> -->
-		<div>
-			<Route path="/">
-				<StudentScreen/>
-			</Route>
-			<Route path="/admin">
-				<LecturerScreen/> 
-			</Route>
+	<div class="container" in:fly="{{ y: -100, duration: 1000 }}">
+		<div class="section">
+			{#if screen == 'landing'}
+				<LandingScreen on:navigate={navigate}/>
+			{:else if screen == 'student'}
+				 <StudentScreen/>
+			{:else if screen == 'instructor'}
+				<LecturerScreen/>
+			{/if}
 		</div>
-	</Router>
-
 	</div>
 </body>
 

@@ -4,41 +4,107 @@
   import { collectionData } from 'rxfire/firestore';
 	import { tap } from 'rxjs/operators';
 	import { object } from 'rxfire/database';
-	import moment from 'moment'
-	import { Router, Link, Route } from "svelte-routing";
+	import moment from 'moment';
 
 	import FeedbackReceived from './components/FeedbackReceived.svelte';
 
-	let allFeedback = [];
-  let clearDate = new Date();
+	import ShortUniqueId from 'short-unique-id';
+	let uid = new ShortUniqueId();
 
-  const feedback = db.collection('feedback');
+	let classId = uid.randomUUID(4).toLowerCase();
 
-  collectionData(feedback, 'userId')
-  // .pipe(
-  //   tap(feedback => console.log(feedback))
-  // )
-  .subscribe(newFeedback => {
-    allFeedback = newFeedback
+  db.collection('classes')
+  .doc(classId)
+  .set({ 
+    feedback: [],
+    students: []
+  });
+
+  const instructorsClass = db.collection('classes').doc(classId);
+
+  instructorsClass.onSnapshot(function(doc) {
+    let data = doc.data();
+    console.log(data);
+    nStudents = data.students.length;
+    allFeedback = data.feedback
       .sort((a, b) => (a.created < b.created) ? 1 : -1)
       .map(stuff => ({
       ...stuff,
       formattedTime: moment(stuff.created).fromNow()
     }));
-  })
+  });
+
+	let allFeedback = [];
+  let clearDate = new Date();
+  let nStudents = 0;
+
+
+  function showClassIdPopop() {
+    var win = window.open("", "BoC - Class ID", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=no,resizable=yes,width=200,height=50,top="+(screen.height-400)+",left="+(screen.width-840));
+    win.document.body.innerHTML = `
+      <style>
+        body {
+          margin: 0;
+        }
+        #container {
+          background-color:rgb(47,47,47);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+        }
+
+        #container > h1 {
+          font-family:sans-serif;
+          color:white;
+          text-align:center;
+          font-size: 10vw;
+        }
+
+        #container span {
+          text-decoration: underline;
+        }
+      </style>
+      <div id="container">
+        <h1>
+          Class ID: <span>${classId}</span>
+        </h1>
+      </div>
+    `;
+  }
 	
 </script>
 
-<div class="section" in:fly="{{ y: -100, duration: 1000 }}">
+<style>
+  .class-id {
+    text-align: right;
+  }
+  .class-id > strong {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="container" in:fly="{{ y: -50, duration: 500 }}">
   <section class="hero is-dark">
     <div class="hero-body">
       <div class="container">
-        <h1 class="title">
-          Live Lecture Feedback
-        </h1>
-        <h2 class="subtitle">
-          Lecturer Dashboard
-        </h2>
+        <div class="columns">
+          <div class="column">
+            <h1 class="title">
+              Bored or Confused
+            </h1>
+            <h2 class="subtitle">
+              Instructor Dashboard
+            </h2>
+            <h2 class="subtitle">
+              { nStudents } student{ nStudents === 1 ? '' : 's'}
+            </h2>
+          </div>
+          <div class="column class-id" on:click={() => { showClassIdPopop() }}>
+            <button class="button is-large">Class ID:<strong>{classId}</strong></button>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -48,5 +114,4 @@
       <FeedbackReceived item={item} key={item.created}/>
     {/if}
   {/each}
-
 </div>

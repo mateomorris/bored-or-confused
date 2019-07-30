@@ -1,57 +1,84 @@
 <script>
-
+	import firebase from 'firebase/app';
 	import { fly, fade } from 'svelte/transition';
   import { db } from './firebase';
   import { collectionData } from 'rxfire/firestore';
 	import { tap } from 'rxjs/operators';
 	import { object } from 'rxfire/database';
 	import moment from 'moment'
-	import { Router, Link, Route } from "svelte-routing";
 
 	import FeedbackSent from './components/FeedbackSent.svelte';
 
+
+	let classId = '';
 	let name = ''; 
 	let signedIn = false;
 	let feedback = [];
   let clearDate = new Date();
 
+	let inClass = false;
+
+
+	function enterClass() {
+
+		const currentClass = db.collection('classes').doc(classId);
+
+		currentClass.get().then(function(doc) {
+				if (doc.exists) {
+					inClass = true;
+					currentClass.onSnapshot(function(doc) {
+						let data = doc.data();
+
+						feedback = data.feedback
+							.filter(i => i.name == name)
+							.sort((a, b) => (a.created < b.created) ? 1 : -1)
+							.map(stuff => ({
+							...stuff,
+							formattedTime: moment(stuff.created).fromNow()
+						}));
+					});
+				} else {
+					alert('Incorrect class ID');
+				}
+		}).catch(function(error) {
+				console.log("Error getting document:", error);
+		});
+
+	}
+
 	function addName(name) {
 		signedIn = true;
 		name = name;
 
-		const feedbackFromServer = db.collection('feedback').where('name', '==', name);
+		db.collection('classes')
+			.doc(classId)
+			.update({ 
+				students: firebase.firestore.FieldValue.arrayUnion(name) 
+			});
 
-		collectionData(feedbackFromServer, 'id')
-		// .pipe(
-		//   tap(feedback => console.log(feedback))
-		// )
-		.subscribe(newFeedback => {
-			feedback = newFeedback
-				.sort((a, b) => (a.created < b.created) ? 1 : -1)
-				.map(data => ({
-				...data,
-      	formattedTime: moment(data.created).fromNow()
-			}));
-		})
 	}
 
 	function handleClick({ target }) {
-		db.collection('feedback')
-			.add({ 
-				name,
-				feeling: target.value,
-				created: Date.now()
+
+		db.collection('classes')
+			.doc(classId)
+			.update({ 
+				feedback: firebase.firestore.FieldValue.arrayUnion({
+					name,
+					feeling: target.value,
+					created: Date.now(),
+				}) 
 			});
+
 	}
 	
 </script>
 
-<div class="section" in:fly="{{ y: -100, duration: 1000 }}">
-  <h1 class="title">Bored or Confused</h1>
-  <h2 class="subtitle">
-    A tool for discreetly giving feedback to an instructor while they're lecturing. Great for introverts. 
-  </h2>
-
+<div class="container">
+	<h1 class="title">Bored or Confused</h1>
+	<h2 class="subtitle">
+		A tool for discreetly giving feedback to an instructor during a lecture. Great for introverts.
+	</h2>
   {#if signedIn}
     <div class="columns">
       <div class="column">
@@ -70,9 +97,17 @@
   {:else}
     <div class="field">
       <div class="control">
-        <form on:submit|preventDefault={() => { addName(name) }}>
-          <input class="input is-large" type="text" placeholder="Name" bind:value={name}>
-        </form>
+				{#if !inClass}
+					<form on:submit|preventDefault={enterClass}>
+						<label class="label">Class ID</label>
+						<input class="input is-large" type="text" placeholder="Class ID" bind:value={classId}>
+					</form>
+				{:else}
+					<form on:submit|preventDefault={() => { addName(name) }}>
+						<label class="label">Name</label>
+						<input class="input is-large" type="text" placeholder="Name" bind:value={name}>
+					</form>
+				{/if}
       </div>
     </div>
   {/if}
