@@ -1,3 +1,7 @@
+<svelte:head>
+  <title>BoC - Instructor</title>
+</svelte:head>
+
 <script>
 	import { onMount } from 'svelte';
   import { fly, fade } from 'svelte/transition';

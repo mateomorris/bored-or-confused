@@ -1,3 +1,7 @@
+<svelte:head>
+  <title>BoC - Student</title>
+</svelte:head>
+
 <script>
 	import firebase from 'firebase/app';
 	import { fly, fade } from 'svelte/transition';
