@@ -1,15 +1,5 @@
 <script>
 	import { fade, fly } from 'svelte/transition';
-  // import { db } from './firebase';
-  // import { collectionData } from 'rxfire/firestore';
-	// import { tap } from 'rxjs/operators';
-	// import { object } from 'rxfire/database';
-	// import moment from 'moment'
-
-	// import StudentScreen from './StudentScreen.svelte';
-	// import LecturerScreen from './LecturerScreen.svelte';
-	// import LandingScreen from './screens/LandingScreen.svelte';
-
 	
 </script>
 

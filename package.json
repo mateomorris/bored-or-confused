@@ -1,6 +1,6 @@
 {
-  "name": "TODO",
-  "description": "TODO",
+  "name": "bored-or-confused",
+  "description": "A site for instructors and introverts alike",
   "version": "0.0.1",
   "scripts": {
     "dev": "sapper dev",
@@ -12,12 +12,13 @@
     "test": "run-p --race dev cy:run"
   },
   "dependencies": {
+    "compression": "^1.7.1",
     "firebase": "^6.3.3",
+    "moment": "^2.24.0",
+    "polka": "next",
     "rxfire": "^3.6.8",
     "rxjs": "^6.5.2",
     "short-unique-id": "^1.1.1",
-    "compression": "^1.7.1",
-    "polka": "next",
     "sirv": "^0.4.0"
   },
   "devDependencies": {
