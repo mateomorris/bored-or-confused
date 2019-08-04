@@ -1,37 +1,52 @@
+<!-- src/routes/blog/[slug].svelte -->
+<script context="module">
+	// the (optional) preload function takes a
+	// `{ path, params, query }` object and turns it into
+	// the data we need to render the page
+	export async function preload(page, session) {
+		// the `slug` parameter is available because this file
+		// is called [slug].svelte
+		const { slug } = page.params;
+
+    let classId = slug;
+
+		// `this.fetch` is a wrapper around `fetch` that allows
+		// you to make credentialled requests on both
+		// server and client
+		const res = await this.fetch(`blog/${slug}.json`);
+		const article = await res.json();
+
+		return { classId };
+	}
+</script>
+
 <svelte:head>
   <title>BoC - Instructor</title>
 </svelte:head>
 
 <script>
+	export let classId;
+
 	import { onMount } from 'svelte';
   import { fly, fade } from 'svelte/transition';
-  import { db } from '../firebase';
+  import { db } from '../../../firebase';
   import { collectionData } from 'rxfire/firestore';
 	import { tap } from 'rxjs/operators';
 	import { object } from 'rxfire/database';
 	import moment from 'moment';
 
-  import { showClassIdPopop } from '../components/classIdPopup'
-	import FeedbackReceived from '../components/FeedbackReceived.svelte';
+  import { showClassIdPopop } from '../../../components/classIdPopup'
+	import FeedbackReceived from '../../../components/FeedbackReceived.svelte';
 
 	import ShortUniqueId from 'short-unique-id';
 	let uid = new ShortUniqueId();
 
-	let classId = uid.randomUUID(4).toLowerCase();
-
   onMount(() => {
-    db.collection('classes')
-    .doc(classId)
-    .set({ 
-      feedback: [],
-      students: []
-    });
 
     const instructorsClass = db.collection('classes').doc(classId);
 
     instructorsClass.onSnapshot(function(doc) {
       let data = doc.data();
-      console.log(data);
       nStudents = data.students.length;
       allFeedback = data.feedback
         .sort((a, b) => (a.created < b.created) ? 1 : -1)
@@ -43,7 +58,7 @@
   }) 
 
 	let allFeedback = [];
-  let clearDate = new Date();
+  let clearDate = 0;
   let nStudents = 0;
 
 	
