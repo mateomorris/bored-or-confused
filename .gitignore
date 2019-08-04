@@ -1,4 +1,5 @@
 public/
+__sapper__/
 
 # Logs
 logs
