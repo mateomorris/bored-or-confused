@@ -68,7 +68,7 @@
 </style>
 
 
-<nav class="navbar" role="navigation" aria-label="main navigation">
+<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
     <a class="navbar-item site-logo title is-4" href="https://bulma.io">BoC <span>: Instructor Dashboard</span></a>
   </div>
@@ -76,8 +76,8 @@
   <div id="navbarBasicExample" class="navbar-menu">
 
     <div class="navbar-end">
-      <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link">{nStudentsLabel}</a>
+      <div class="navbar-item {nStudents < 1 ? '' : 'has-dropdown is-hoverable'}">
+        <a class="navbar-link {nStudents < 1 && 'is-arrowless' }">{nStudentsLabel}</a>
 
         <div class="navbar-dropdown">
           {#each students as student}
