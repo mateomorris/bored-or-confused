@@ -4,6 +4,7 @@
 
 <script>
 	import firebase from 'firebase/app';
+	import { onDestroy } from "svelte";
 	import { fly, fade } from 'svelte/transition';
   import { db } from '../firebase';
   import { collectionData } from 'rxfire/firestore';
@@ -21,6 +22,7 @@
   let clearDate = new Date();
 
 	let inClass = false;
+	let studentsInClass = [];
 
 
 	function enterClass() {
@@ -32,6 +34,8 @@
 					inClass = true;
 					currentClass.onSnapshot(function(doc) {
 						let data = doc.data();
+
+						studentsInClass = data.students;
 
 						feedback = data.feedback
 							.filter(i => i.name == name)
@@ -48,6 +52,16 @@
 				console.log("Error getting document:", error);
 		});
 
+	}
+
+	function leaveClass() {
+		db.collection('classes')
+			.doc(classId)
+			.update({ 
+				students: studentsInClass.filter((student) => {
+					return student !== name
+				})
+			});
 	}
 
 	function addName(name) {
@@ -75,6 +89,10 @@
 			});
 
 	}
+
+	onDestroy(() => {
+		leaveClass();
+	});
 	
 </script>
 

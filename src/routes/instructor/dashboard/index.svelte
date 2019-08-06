@@ -32,6 +32,7 @@
     instructorsClass.onSnapshot(function(doc) {
       let data = doc.data();
       nStudents = data.students.length;
+      students = data.students;
       allFeedback = data.feedback
         .sort((a, b) => (a.created < b.created) ? 1 : -1)
         .map(stuff => ({
@@ -43,40 +44,64 @@
 
 	let allFeedback = [];
   let clearDate = new Date();
-  let nStudents = 0;
+
+  let students = [];
+  $: nStudents = students.length;
+  $: nStudentsLabel = `${ nStudents } student${ nStudents === 1 ? '' : 's'}`
+
+  let studentNavVisible = false
+
+  function showStudentNav() {
+    studentNavVisible = true
+  }
 
 	
 </script>
 
 <style>
-  .class-id {
-    text-align: right;
+  .site-logo {
+    font-weight: 800;
+  }
+  .site-logo > span {
+    font-weight: 400;
   }
 </style>
 
-<div class="container" in:fly="{{ y: -50, duration: 500 }}">
-  <section class="hero is-dark">
-    <div class="hero-body">
-      <div class="container">
-        <div class="columns">
-          <div class="column">
-            <h1 class="title">
-              Bored or Confused
-            </h1>
-            <h2 class="subtitle">
-              Instructor Dashboard
-            </h2>
-            <h2 class="subtitle">
-              { nStudents } student{ nStudents === 1 ? '' : 's'}
-            </h2>
-          </div>
-          <div class="column class-id" on:click={() => { showClassIdPopop(classId) }}>
-            <button class="button is-large">Class ID:<strong>{classId}</strong></button>
-          </div>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item site-logo title is-4" href="https://bulma.io">BoC <span>: Instructor Dashboard</span></a>
+  </div>
+
+  <div id="navbarBasicExample" class="navbar-menu">
+
+    <div class="navbar-end">
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">{nStudentsLabel}</a>
+
+        <div class="navbar-dropdown">
+          {#each students as student}
+            <span class="navbar-item">{student}</span>
+          {/each}
+          <!-- <hr class="navbar-divider">
+          <div class="navbar-item">
+            <button class="button is-dark" on:click={() => { showClassIdPopop(classId) }}>
+              <strong>Class: {classId}</strong>
+            </button>
+          </div> -->
+        </div>
+      </div>
+      <div class="navbar-item">
+        <div class="buttons">
+          <button class="button is-light" on:click={() => { showClassIdPopop(classId) }}>
+            <strong>Class: {classId}</strong>
+          </button>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</nav>
+<div class="container" in:fly="{{ y: -50, duration: 500 }}">
   <hr/>
   {#each allFeedback as item (item.created)}
     {#if item.created >= clearDate}
