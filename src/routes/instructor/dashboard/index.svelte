@@ -17,8 +17,8 @@
 	import ShortUniqueId from 'short-unique-id';
 	let uid = new ShortUniqueId();
 
-	// let classId = uid.randomUUID(4).toLowerCase();
-	let classId = 'cv2r';
+	let classId = uid.randomUUID(4).toLowerCase();
+	// let classId = 'cv2r';
 
   const currentClass = db.collection('classes')
     .doc(classId);
