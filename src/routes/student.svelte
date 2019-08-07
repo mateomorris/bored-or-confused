@@ -24,16 +24,22 @@
 	let inClass = false;
 	let studentsInClass = [];
 
+  let currentClass;
+	let currentTopic;
 
 	function enterClass() {
 
-		const currentClass = db.collection('classes').doc(classId);
+		currentClass = db.collection('classes')
+    .doc(classId);
 
 		currentClass.get().then(function(doc) {
 				if (doc.exists) {
 					inClass = true;
+
 					currentClass.onSnapshot(function(doc) {
 						let data = doc.data();
+
+						currentTopic = data.activeTopic;
 
 						studentsInClass = data.students;
 
@@ -55,8 +61,7 @@
 	}
 
 	function leaveClass() {
-		db.collection('classes')
-			.doc(classId)
+		currentClass
 			.update({ 
 				students: studentsInClass.filter((student) => {
 					return student !== name
@@ -68,57 +73,69 @@
 		signedIn = true;
 		name = name;
 
-		db.collection('classes')
-			.doc(classId)
+		currentClass
 			.update({ 
 				students: firebase.firestore.FieldValue.arrayUnion(name) 
 			});
 
 	}
 
-	function handleClick({ target }) {
+	function handleFeeling({ target }) {
 
-		db.collection('classes')
-			.doc(classId)
+		currentClass
 			.update({ 
 				feedback: firebase.firestore.FieldValue.arrayUnion({
 					name,
 					feeling: target.value,
 					created: Date.now(),
+					topic: currentTopic
 				}) 
 			});
 
 	}
 
 	onDestroy(() => {
-		leaveClass();
+		// leaveClass();
 	});
 	
 </script>
 
 <style>
 	button {
-		height: 50vh;
+		height: 25vh;
 	}
 </style>
 
+
+{#if !signedIn }
+	<nav class="navbar is-light" role="navigation" aria-label="main navigation">
+		<div class="navbar-brand">
+			<a class="navbar-item site-logo title is-4" href="https://boredorconfused.com">Bored or Confused</a>
+		</div>
+	</nav>
+	<hr/>
+{/if}
 <div class="container">
-	<h1 class="title">Bored or Confused</h1>
-	<h2 class="subtitle">
-		A tool for discreetly giving feedback to an instructor during a lecture. Great for introverts.
-	</h2>
   {#if signedIn}
+		{#if currentTopic }
+			<div class="card" in:fly>
+				<div class="card-content">
+					<p class="title">{currentTopic}</p>
+				</div>
+			</div>
+			<br>
+		{/if}
     <div class="columns">
       <div class="column">
-        <button class="button is-large is-dark is-fullwidth" on:click={handleClick} value="bored">Bored 😴</button>
+        <button class="button is-large is-dark is-fullwidth" on:click={handleFeeling} value="bored">Bored 😴</button>
       </div>
       <div class="column">
-        <button class="button is-large is-dark is-fullwidth" on:click={handleClick} value="confused">Confused 😕</button>
+        <button class="button is-large is-dark is-fullwidth" on:click={handleFeeling} value="confused">Confused 😕</button>
       </div>
     </div>
     <hr/>
     {#each feedback as item (item.created)}
-		  {#if item.created >= clearDate}
+		  {#if (item.created >= clearDate) && (item.topic === currentTopic)}
       	<FeedbackSent item={item}/>
     	{/if}
     {/each}

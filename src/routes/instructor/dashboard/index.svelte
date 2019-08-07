@@ -17,20 +17,23 @@
 	import ShortUniqueId from 'short-unique-id';
 	let uid = new ShortUniqueId();
 
-	let classId = uid.randomUUID(4).toLowerCase();
+	// let classId = uid.randomUUID(4).toLowerCase();
+	let classId = 'cv2r';
+
+  const currentClass = db.collection('classes')
+    .doc(classId);
 
   onMount(() => {
 
-    db.collection('classes')
-    .doc(classId)
+    currentClass
     .set({ 
       feedback: [],
-      students: []
+      students: [],
+      topics: [],
+      activeTopic: currentTopic
     });
 
-    const instructorsClass = db.collection('classes').doc(classId);
-
-    instructorsClass.onSnapshot(function(doc) {
+    currentClass.onSnapshot(function(doc) {
       let data = doc.data();
       nStudents = data.students.length;
       students = data.students;
@@ -48,6 +51,7 @@
 
   let students = [];
   $: nStudents = students.length;
+  $: classEmpty = students.length < 1 ? true : false
   $: nStudentsLabel = `${ nStudents } student${ nStudents === 1 ? '' : 's'}`
 
   let studentNavVisible = false
@@ -69,6 +73,11 @@
   function editTopic() {
     editingTopicHeading = false
     topics = topics.map(topic => topic == '' ? typedTopic : topic)
+
+		currentClass.update({ 
+      topics,
+      activeTopic: topics[currentTopicIndex]
+     });
   }
 
   function addTopic() {
@@ -76,6 +85,13 @@
     typedTopic = '';
     topics = [ ...topics, '' ]
     currentTopicIndex++
+  }
+
+  function changeToTopic(index) {
+    currentTopicIndex = index;
+		currentClass.update({ 
+      activeTopic: topics[index]
+     });
   }
 	
 </script>
@@ -94,14 +110,14 @@
 
 <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
-    <a class="navbar-item site-logo title is-4" href="https://bulma.io">BoC <span>: Instructor Dashboard</span></a>
+    <a class="navbar-item site-logo title is-4" href="https://boredorconfused.com">BoC <span>: Instructor Dashboard</span></a>
   </div>
 
   <div id="navbarBasicExample" class="navbar-menu">
 
     <div class="navbar-end">
-      <div class="navbar-item {nStudents < 1 ? '' : 'has-dropdown is-hoverable'}">
-        <a class="navbar-link {nStudents < 1 && 'is-arrowless' }">{nStudentsLabel}</a>
+      <div class="navbar-item {!classEmpty && 'has-dropdown is-hoverable'}">
+        <a class="navbar-link {classEmpty && 'is-arrowless'}">{nStudentsLabel}</a>
         <div class="navbar-dropdown">
           {#each students as student}
             <span class="navbar-item">{student}</span>
@@ -132,10 +148,10 @@
         <div class="tabs" in:fly>
           <ul>
             {#each topics as topic, index}
-              {#if index + 1 === topics.length }
+              {#if currentTopicIndex === index }
                 <li class="is-active"><a>{topic}</a></li>
               {:else}
-                <li><a>{topic}</a></li>
+                <li><a on:click={() => { changeToTopic(index) }}>{topic}</a></li>
               {/if}
             {/each}
           </ul>
@@ -170,7 +186,7 @@
       </div>
       <br>
       {#each allFeedback as item (item.created)}
-        {#if item.created >= clearDate}
+        {#if (item.created >= clearDate) && (item.topic === currentTopic)}
           <FeedbackReceived item={item} key={item.created}/>
         {/if}
       {/each}

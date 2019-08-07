@@ -4,7 +4,7 @@
   export let item;
 </script>
 
-<div class="box" in:fade>
+<div class="box" transition:fade="{{ duration: 250 }}">
   <article class="media">
     <div class="media-content">
       <nav class="level is-mobile">
