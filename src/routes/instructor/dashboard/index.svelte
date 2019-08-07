@@ -84,15 +84,35 @@
     editingTopicHeading = true
     typedTopic = '';
     topics = [ ...topics, '' ]
-    currentTopicIndex++
+    currentTopicIndex = topics.length - 1
+    console.log(topicInput)
+    if (topicInput) {
+    topicInput.focus()
+    }
   }
 
-  function changeToTopic(index) {
+  function changeToTopic(index, goBack = false) {
+    console.log(currentTopicIndex, index)
     currentTopicIndex = index;
 		currentClass.update({ 
       activeTopic: topics[index]
      });
   }
+
+	function handleKeydown({key}) {
+
+    if (key === 'Enter' && (currentTopicIndex === topics.length - 1) & !editingTopicHeading) {
+      addTopic()
+    } if ((key === ' ' || key === 'ArrowRight') && currentTopicIndex != (topics.length -1)) {
+      changeToTopic(currentTopicIndex + 1)
+    } else if (key === 'ArrowLeft' && currentTopicIndex != 0) {
+      console.log(currentTopicIndex)
+      changeToTopic(currentTopicIndex - 1)
+    }
+	}
+
+  let topicInput;
+
 	
 </script>
 
@@ -107,6 +127,8 @@
     overflow: scroll;
   }
 </style>
+
+<svelte:window on:keydown={handleKeydown}/>
 
 <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
@@ -162,7 +184,7 @@
           {#if topicsActive}
             {#if editingTopicHeading}
               <form on:submit={editTopic}>
-                <input class="input is-large" type="text" placeholder="Topic" bind:value={typedTopic}>
+                <input class="input is-large" type="text" placeholder="Topic" bind:value={typedTopic} bind:this={topicInput}>
               </form>
             {:else}
               <p class="title" on:click={() => { editingTopicHeading = true }}>{currentTopic}</p>
@@ -193,38 +215,20 @@
     </div>
     {#if topicsActive }
       <div class="column is-one-fifth">
-        {#if currentTopicIndex + 1 < topics.length } 
-          <div class="card" in:fade>
-            <header class="card-header">
-              <p class="card-header-title">
+        <div class="card">
+          <header class="card-header">
+            <p class="card-header-title">
+            {#if (currentTopicIndex >= 2) && (topics.length -1 <= currentTopicIndex)}
+                End of Lesson
+            {:else}
                 Next Topic
-              </p>
-            </header>
-            <div class="card-content">
-              <p>{nextTopic}</p>
-            </div>
-            <footer class="card-footer">
-              <div class="card-footer-item">
-                  <button class="button is-primary is-medium is-fullwidth" on:click={() => { currentTopicIndex++ }}>Next</button>
-              </div>
-            </footer>
+            {/if}
+            </p>
+          </header>
+          <div class="card-content">
+            <button class="button is-primary is-fullwidth" on:click={addTopic}>Add Topic</button>
           </div>
-        {:else}
-          <div class="card">
-            <header class="card-header">
-              <p class="card-header-title">
-              {#if topics.length >= 2 }
-                 End of Lesson
-              {:else}
-                  Next Topic
-              {/if}
-              </p>
-            </header>
-            <div class="card-content">
-              <button class="button is-primary is-fullwidth" on:click={addTopic}>Add Topic</button>
-            </div>
-          </div>
-        {/if}
+        </div>
       </div>
     {/if}
   </div>
