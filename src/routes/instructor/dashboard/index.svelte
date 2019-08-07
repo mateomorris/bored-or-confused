@@ -88,6 +88,7 @@
     console.log(topicInput)
     if (topicInput) {
     topicInput.focus()
+    // TODO: Get this to work
     }
   }
 
