@@ -1,5 +1,8 @@
 <script>
-	import { fade, fly } from 'svelte/transition';
+	import { fade, fly, draw } from 'svelte/transition';
+
+  let studentHover = false;
+  let instructorHover = false;
 </script>
 
 <svelte:head>
@@ -9,7 +12,27 @@
 <style>
 	.button {
 		height: 50vh;
+    position: relative;
 	}
+
+  .button > img {
+    position: absolute;
+    width: 50%;
+    pointer-events: none;
+  }
+
+  #student-button {
+    background-image: url('static/student.svg');
+  }
+
+  #student-button > img {
+    position: absolute;
+    width: 50%;
+  }
+
+  #instructor-button {
+    background-image: url('static/teacher.svg');
+  }
 </style>
 
 <h1 class="title">Bored or Confused</h1>
@@ -18,9 +41,31 @@
 </h2>
 <div class="columns">
   <div class="column">
-    <a class="button is-large is-fullwidth is-info" href="/student">Student</a>
+    <a 
+      class="button is-large is-fullwidth is-info"
+      id="student-button" 
+      href="/student" 
+      on:mouseover={() => { studentHover = true }} 
+      on:mouseout={() => { studentHover = false }}>
+      {#if studentHover}
+        <img alt='' src='student.svg' in:fade="{{ duration: 500 }}" out:fade="{{ duration: 250 }}">
+      {:else}
+        <span in:fade="{{ duration: 500 }}">Student</span>
+      {/if}
+    </a>
   </div>
   <div class="column">
-    <a class="button is-large is-fullwidth is-success" href="/instructor">Instructor</a>
+    <a 
+      class="button is-large is-fullwidth is-success instructor" 
+      id="instructor-button" 
+      href="/instructor"  
+      on:mouseover={() => { instructorHover = true }} 
+      on:mouseout={() => { instructorHover = false }}>
+      {#if instructorHover}
+        <img alt='' src='teacher.svg' in:fade="{{ duration: 500 }}"  out:fade="{{ duration: 250 }}">
+      {:else}
+        <span in:fade="{{ duration: 500 }}">Instructor</span>
+      {/if}
+    </a>
   </div>
 </div>
