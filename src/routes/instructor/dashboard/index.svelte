@@ -3,6 +3,18 @@
 </svelte:head>
 
 <script>
+	import ShortUniqueId from 'short-unique-id';
+  import * as sapper from '@sapper/app';
+
+  export let existingClassId;
+
+  const uid = new ShortUniqueId();  
+  const uniqueId = uid.randomUUID(4).toLowerCase();
+
+  if (!existingClassId) {
+    sapper.goto(`/instructor/dashboard/${uniqueId}`)
+  } 
+
 	import { onMount } from 'svelte';
   import { fly, fade } from 'svelte/transition';
   import { db } from '../../../firebase';
@@ -11,56 +23,26 @@
 	import { object } from 'rxfire/database';
 	import moment from 'moment';
 
+  import TopNav from './_wrapper.svelte'
+
   import { showClassIdPopop } from '../../../components/classIdPopup'
 	import FeedbackReceived from '../../../components/FeedbackReceived.svelte';
 
-	import ShortUniqueId from 'short-unique-id';
-	let uid = new ShortUniqueId();
-
-	let classId = uid.randomUUID(4).toLowerCase();
+  console.log(existingClassId)
+	let classId = existingClassId || uniqueId;
+  console.log(classId)
 	// let classId = 'cv2r';
 
   const currentClass = db.collection('classes')
     .doc(classId);
 
-  onMount(() => {
-
-    currentClass
-    .set({ 
-      feedback: [],
-      students: [],
-      topics: [],
-      activeTopic: currentTopic
-    });
-
-    currentClass.onSnapshot(function(doc) {
-      let data = doc.data();
-      nStudents = data.students.length;
-      students = data.students;
-      allFeedback = data.feedback
-        .sort((a, b) => (a.created < b.created) ? 1 : -1)
-        .map(stuff => ({
-        ...stuff,
-        formattedTime: moment(stuff.created).fromNow()
-      }));
-    });
-  }) 
 
 	let allFeedback = [];
   let clearDate = new Date();
 
   let students = [];
-  $: nStudents = students.length;
-  $: classEmpty = students.length < 1 ? true : false
-  $: nStudentsLabel = `${ nStudents } student${ nStudents === 1 ? '' : 's'}`
 
-  let studentNavVisible = false
-
-  function showStudentNav() {
-    studentNavVisible = true
-  }
-
-  let editingTopicHeading = true;
+  let editingTopicHeading = false;
 
   let currentTopicIndex = 0;
   let topics = [''];
@@ -70,9 +52,63 @@
   
   let topicsActive = false
 
+  onMount(() => {
+
+    currentClass
+    .get().then((doc) => {
+      let data = doc.data();
+      console.log(doc)
+      console.log(data)
+      if (data) { // Already exists
+        console.log('ANDHERE')
+        let { students, feedback, topics } = data;
+        let dataEmpty = [ ...students, ...feedback, ...topics].length > 0 ? false : true;
+        if (!dataEmpty) { // Already has data, populate local data
+          topicsActive = data.topics.length > 1 ? true : false
+          console.log(data)
+          currentTopicIndex = data.topics.indexOf(data.activeTopic)
+          students = data.students
+          topics = data.topics
+          allFeedback = data.feedback
+            .sort((a, b) => (a.created < b.created) ? 1 : -1)
+            .map(stuff => ({
+            ...stuff,
+            formattedTime: moment(stuff.created).fromNow()
+          }));
+        }
+      } else { // Doesn't exist yet
+        console.warn('Doesnt exist yet')
+        currentClass.set({ 
+          feedback: [],
+          students: [],
+          topics: [''],
+          activeTopic: ''
+        })
+      }
+    });
+
+    currentClass.onSnapshot(function(doc) {
+      let data = doc.data();
+      console.log(data)
+      if (data) {
+        currentTopicIndex = data.topics.indexOf(data.activeTopic);
+        topics = data.topics;
+        students = data.students;
+        allFeedback = data.feedback
+          .sort((a, b) => (a.created < b.created) ? 1 : -1)
+          .map(stuff => ({
+          ...stuff,
+          formattedTime: moment(stuff.created).fromNow()
+        }));
+      }
+    });
+  }) 
+
   function editTopic() {
     editingTopicHeading = false
     topics = topics.map(topic => topic == '' ? typedTopic : topic)
+
+    console.log(topics)
 
 		currentClass.update({ 
       topics,
@@ -85,7 +121,6 @@
     typedTopic = '';
     topics = [ ...topics, '' ]
     currentTopicIndex = topics.length - 1
-    console.log(topicInput)
     if (topicInput) {
     topicInput.focus()
     // TODO: Get this to work
@@ -131,38 +166,11 @@
 
 <svelte:window on:keydown={handleKeydown}/>
 
-<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a class="navbar-item site-logo title is-4" href="https://boredorconfused.com">BoC <span>: Instructor Dashboard</span></a>
-  </div>
+<TopNav 
+  students={students}
+  classId={classId}
+/>
 
-  <div id="navbarBasicExample" class="navbar-menu">
-
-    <div class="navbar-end">
-      <div class="navbar-item {!classEmpty && 'has-dropdown is-hoverable'}">
-        <a class="navbar-link {classEmpty && 'is-arrowless'}">{nStudentsLabel}</a>
-        <div class="navbar-dropdown">
-          {#each students as student}
-            <span class="navbar-item">{student}</span>
-          {/each}
-          <!-- <hr class="navbar-divider">
-          <div class="navbar-item">
-            <button class="button is-dark" on:click={() => { showClassIdPopop(classId) }}>
-              <strong>Class: {classId}</strong>
-            </button>
-          </div> -->
-        </div>
-      </div>
-      <div class="navbar-item">
-        <div class="buttons">
-          <button class="button is-light" on:click={() => { showClassIdPopop(classId) }}>
-            <strong>Class: {classId}</strong>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</nav>
 <div class="container" in:fly="{{ y: -50, duration: 500 }}">
   <hr/>
   <div class="columns">
@@ -191,25 +199,14 @@
               <p class="title" on:click={() => { editingTopicHeading = true }}>{currentTopic}</p>
             {/if}
           {:else}
-            <button class="button is-primary is-medium is-fullwidth" on:click={() => { topicsActive = true }}>Add a topic</button>
+            <button class="button is-primary is-medium is-fullwidth" on:click={() => { topicsActive = true; editingTopicHeading = true; }}>Add a topic</button>
           {/if}
         </div>
-        <!-- <footer class="card-footer">
-          <p class="card-footer-item">
-            <span>
-              <a href="https://twitter.com/codinghorror/status/506010907021828096">Edit</a>
-            </span>
-          </p>
-          <p class="card-footer-item">
-            <span>
-              <a href="#">Quiz</a>
-            </span>
-          </p>
-        </footer> -->
       </div>
       <br>
       {#each allFeedback as item (item.created)}
-        {#if (item.created >= clearDate) && (item.topic === currentTopic)}
+        <!-- {#if (item.created >= clearDate) && (item.topic === currentTopic)} -->
+        {#if (item.topic === currentTopic)}
           <FeedbackReceived item={item} key={item.created}/>
         {/if}
       {/each}
