@@ -36,6 +36,7 @@
   const currentClass = db.collection('classes')
     .doc(classId);
 
+  let exampleVariable;
 
 	let allFeedback = [];
   let clearDate = new Date();
