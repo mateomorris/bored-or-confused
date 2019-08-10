@@ -149,7 +149,6 @@
 	}
 
   let topicInput;
-
 	
 </script>
 

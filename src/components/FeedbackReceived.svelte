@@ -17,6 +17,6 @@
 </style>
 
 
-<div class="notification {bored ? 'is-success' : 'is-danger'} {isExpired ? 'expired' : ''}" transition:fade="{{ duration: 250 }}">
+<div class="notification {bored ? 'is-success' : 'is-danger'} {isExpired ? 'expired' : ''}" in:fade="{{ duration: 250 }}">
   <h2 class="title is-5"><strong>{item.name}</strong> ({item.formattedTime})</h2>  
 </div>

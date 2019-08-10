@@ -48,7 +48,7 @@
       on:mouseover={() => { studentHover = true }} 
       on:mouseout={() => { studentHover = false }}>
       {#if studentHover}
-        <img alt='' src='student.svg' in:fade="{{ duration: 500 }}" out:fade="{{ duration: 250 }}">
+        <img alt='' src='student.svg' in:fade="{{ duration: 500 }}">
       {:else}
         <span in:fade="{{ duration: 500 }}">Student</span>
       {/if}
@@ -62,7 +62,7 @@
       on:mouseover={() => { instructorHover = true }} 
       on:mouseout={() => { instructorHover = false }}>
       {#if instructorHover}
-        <img alt='' src='teacher.svg' in:fade="{{ duration: 500 }}"  out:fade="{{ duration: 250 }}">
+        <img alt='' src='teacher.svg' in:fade="{{ duration: 500 }}" >
       {:else}
         <span in:fade="{{ duration: 500 }}">Instructor</span>
       {/if}

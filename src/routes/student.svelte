@@ -102,7 +102,7 @@
 
 <style>
 	button {
-		height: 25vh;
+		height: 20vh;
 	}
 </style>
 
@@ -127,10 +127,10 @@
 		{/if}
     <div class="columns">
       <div class="column">
-        <button class="button is-large is-dark is-fullwidth" on:click={handleFeeling} value="bored">Bored 😴</button>
+        <button class="button is-large is-dark is-fullwidth is-success" on:click={handleFeeling} value="bored">Bored 😴</button>
       </div>
       <div class="column">
-        <button class="button is-large is-dark is-fullwidth" on:click={handleFeeling} value="confused">Confused 😕</button>
+        <button class="button is-large is-dark is-fullwidth is-danger" on:click={handleFeeling} value="confused">Confused 😕</button>
       </div>
     </div>
     <hr/>
