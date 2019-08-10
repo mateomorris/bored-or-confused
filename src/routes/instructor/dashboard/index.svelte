@@ -58,15 +58,11 @@
     currentClass
     .get().then((doc) => {
       let data = doc.data();
-      console.log(doc)
-      console.log(data)
       if (data) { // Already exists
-        console.log('ANDHERE')
         let { students, feedback, topics } = data;
         let dataEmpty = [ ...students, ...feedback, ...topics].length > 0 ? false : true;
         if (!dataEmpty) { // Already has data, populate local data
           topicsActive = data.topics.length > 1 ? true : false
-          console.log(data)
           currentTopicIndex = data.topics.indexOf(data.activeTopic)
           students = data.students
           topics = data.topics
@@ -90,7 +86,6 @@
 
     currentClass.onSnapshot(function(doc) {
       let data = doc.data();
-      console.log(data)
       if (data) {
         currentTopicIndex = data.topics.indexOf(data.activeTopic);
         topics = data.topics;
@@ -109,8 +104,6 @@
     editingTopicHeading = false
     topics = topics.map(topic => topic == '' ? typedTopic : topic)
 
-    console.log(topics)
-
 		currentClass.update({ 
       topics,
       activeTopic: topics[currentTopicIndex]
@@ -123,8 +116,8 @@
     topics = [ ...topics, '' ]
     currentTopicIndex = topics.length - 1
     if (topicInput) {
-    topicInput.focus()
-    // TODO: Get this to work
+      topicInput.focus()
+      // TODO: Get this to work
     }
   }
 
@@ -133,6 +126,16 @@
     currentTopicIndex = index;
 		currentClass.update({ 
       activeTopic: topics[index]
+     });
+  }
+
+  function removeTopic() {
+    let i = currentTopicIndex;
+    topics = topics.slice(0, i).concat(topics.slice(i + 1, topics.length));
+
+		currentClass.update({ 
+      topics,
+      activeTopic: topics[currentTopicIndex]
      });
   }
 
@@ -162,6 +165,11 @@
   .main-content {
     overflow: scroll;
   }
+  .delete {
+    right: 0.5rem;
+    position: absolute;
+    top: 0.5rem;
+  }
 </style>
 
 <svelte:window on:keydown={handleKeydown}/>
@@ -189,6 +197,9 @@
         </div>
       {/if}
       <div class="card" in:fade>
+        {#if topicsActive}
+          <button class="delete" on:click={removeTopic} in:fade></button>
+        {/if}
         <div class="card-content">
           {#if topicsActive}
             {#if editingTopicHeading}
