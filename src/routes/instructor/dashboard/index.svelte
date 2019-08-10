@@ -53,6 +53,8 @@
   
   let topicsActive = false
 
+
+
   onMount(() => {
 
     currentClass
@@ -122,7 +124,6 @@
   }
 
   function changeToTopic(index, goBack = false) {
-    console.log(currentTopicIndex, index)
     currentTopicIndex = index;
 		currentClass.update({ 
       activeTopic: topics[index]
@@ -139,6 +140,13 @@
      });
   }
 
+  function updateTopicOrder(newTopics) {
+    topics = newTopics;
+		currentClass.update({ 
+      topics
+     });
+  }
+
 	function handleKeydown({key}) {
 
     if (key === 'Enter' && (currentTopicIndex === topics.length - 1) & !editingTopicHeading) {
@@ -152,6 +160,45 @@
 	}
 
   let topicInput;
+
+
+  let topicBeingDragged;
+  let indexOfTopicBeingDragged;
+  let indexOfTopicBeingHovered;
+
+  function handleDragStart(e) {
+    topicBeingDragged = e.path[0]['text']
+    indexOfTopicBeingDragged = topics.indexOf(topicBeingDragged)
+  }
+
+  function handleDragEnd(e) {
+    let updatedTopics = topics.filter((i,key) => key != indexOfTopicBeingDragged) 
+    updatedTopics.splice(indexOfTopicBeingHovered, 0, topicBeingDragged);
+    updateTopicOrder(updatedTopics)
+
+    currentTopicIndex = indexOfTopicBeingHovered
+    indexOfTopicBeingDragged = null;
+    indexOfTopicBeingHovered = null;
+  }
+
+  function handleDragEnter(e) {
+    let topicBeingHovered = e.path[0]['text']
+    indexOfTopicBeingHovered = topics.indexOf(topicBeingHovered)
+  }
+
+  function getTabClasses(index, indexOfTopicBeingHovered, indexOfTopicBeingDragged) {
+    if (index === indexOfTopicBeingDragged) {
+      return 'dragging'
+    } else if (indexOfTopicBeingHovered === index) {
+      if (indexOfTopicBeingHovered < indexOfTopicBeingDragged) {
+        return 'will-insert-left'
+      } else if (indexOfTopicBeingHovered > indexOfTopicBeingDragged) {
+        return 'will-insert-right'
+      } 
+    } else {
+      return ''
+    }
+  }
 	
 </script>
 
@@ -170,6 +217,19 @@
     position: absolute;
     top: 0.5rem;
   }
+  .will-insert-left {
+    border-left: 1px solid gainsboro;
+    margin-left: -1px;
+  }
+  .will-insert-right {
+    border-right: 1px solid gainsboro;
+    margin-right: -1px;
+  }
+  .tab-item.dragging {
+    background-color: whitesmoke;
+    transition: 0.25s background-color;
+    will-change: transition;
+  }
 </style>
 
 <svelte:window on:keydown={handleKeydown}/>
@@ -187,17 +247,24 @@
         <div class="tabs" in:fly>
           <ul>
             {#each topics as topic, index}
-              {#if currentTopicIndex === index }
-                <li class="is-active"><a>{topic}</a></li>
-              {:else}
-                <li><a on:click={() => { changeToTopic(index) }}>{topic}</a></li>
-              {/if}
+              <li class={currentTopicIndex === index && 'is-active'}>
+                <a 
+                  on:click={() => { changeToTopic(index) }} 
+                  draggable="true" 
+                  on:dragstart={handleDragStart}
+                  on:dragend={handleDragEnd}
+                  on:dragenter={handleDragEnter}
+                  class={`${getTabClasses(index, indexOfTopicBeingHovered, indexOfTopicBeingDragged)} tab-item`}
+                  >
+                    {topic}
+                  </a>
+              </li>
             {/each}
           </ul>
         </div>
       {/if}
       <div class="card" in:fade>
-        {#if topicsActive}
+        {#if topicsActive && !editingTopicHeading}
           <button class="delete" on:click={removeTopic} in:fade></button>
         {/if}
         <div class="card-content">
