@@ -199,6 +199,45 @@
       return ''
     }
   }
+
+  let creatingQuiz;
+  function addQuiz() {
+    creatingQuiz = true;
+  }
+
+  let quiz = {
+    question: '',
+    options: [
+      {
+        label: '',
+        isAnswer: false
+      }
+    ],
+  }
+
+
+  let answers = [];
+  let addingAnswer = false;
+  let currentAnswer = {
+    label : '',
+    corrent: false
+  };
+
+  function startAddingAnswer() {
+    addingAnswer = true;
+  }
+
+  function addAnswer() {
+    answers = [
+      currentAnswer,
+      ...answers
+    ]
+    addingAnswer = false;
+    currentAnswer = {
+      label : '',
+      correct: false
+    };
+  }
 	
 </script>
 
@@ -233,6 +272,57 @@
 </style>
 
 <svelte:window on:keydown={handleKeydown}/>
+
+{#if creatingQuiz }
+	<div class="modal is-active">
+		<div class="modal-background"></div>
+		<div class="modal-card">
+			<header class="modal-card-head">
+				<p class="modal-card-title">Second Topic - Quiz</p>
+			</header>
+			<section class="modal-card-body">
+        <div class="field">
+          <label class="label">Question</label>
+          <div class="control">
+            <input class="input" type="text" placeholder="Quiz question">
+          </div>
+        </div>
+				<div class="field is-grouped is-grouped-multiline">
+          {#if addingAnswer}
+            <div class="control">
+              <label class="checkbox">
+                <form on:submit|preventDefault={addAnswer}>
+                  <input class="input" type="text" placeholder="Answer" bind:value={currentAnswer.label}>
+                  <input type="checkbox" id="correct" bind:checked={currentAnswer.correct}>
+                  <label for="correct">Correct answer</label>
+                </form>
+              </label>
+            </div>
+          {:else}
+            <p class="control">
+              <a class="button is-light" on:click={startAddingAnswer}>
+                Add an answer
+              </a>
+            </p>
+          {/if}
+				</div>
+        <div class="content is-medium">
+          <ul>
+            {#each answers as answer}
+              <li>
+                {answer.label}
+                {#if answer.correct}✅{/if}
+              </li>
+            {/each}
+          </ul>
+        </div>
+			</section>
+			<footer class="modal-card-foot">
+				<button class="button is-dark" disabled>Send quiz</button>
+			</footer>
+		</div>
+	</div>
+{/if}
 
 <TopNav 
   students={students}
@@ -302,7 +392,10 @@
             </p>
           </header>
           <div class="card-content">
-            <button class="button is-primary is-fullwidth" on:click={addTopic}>Add Topic</button>
+            <div class="buttons">
+              <button class="button is-primary is-fullwidth" on:click={addTopic}>Add Topic</button>
+              <button class="button is-link is-fullwidth" on:click={addQuiz}>Add Quiz</button>
+            </div>
           </div>
         </div>
       </div>

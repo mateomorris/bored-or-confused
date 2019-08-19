@@ -27,6 +27,8 @@
   let currentClass;
 	let currentTopic;
 
+	let quizIsActive = true;
+
 	function enterClass() {
 
 		currentClass = db.collection('classes')
@@ -57,7 +59,6 @@
 		}).catch(function(error) {
 				console.log("Error getting document:", error);
 		});
-
 	}
 
 	function leaveClass() {
@@ -102,9 +103,54 @@
 
 <style>
 	button {
+
+	}
+	.feeling-button {
 		height: 20vh;
 	}
+	.modal-background {
+		pointer-events: none;
+	}
 </style>
+
+{#if quizIsActive }
+	<div class="modal is-active">
+		<div class="modal-background"></div>
+		<div class="modal-card">
+			<header class="modal-card-head">
+				<p class="modal-card-title">Assesment - Object Methods</p>
+			</header>
+			<section class="modal-card-body">
+				<div class="content">
+					<!-- <h2>Second level</h2> -->
+					<p>What is the best way to make parmesan cheese without a microwave?</p>
+				</div>
+				<div class="field is-grouped is-grouped-multiline">
+					<p class="control">
+						<a class="button">
+							With imagination
+						</a>
+					</p>
+					<p class="control">
+						<a class="button">
+							On top of the world
+						</a>
+					</p>
+					<p class="control">
+						<a class="button">
+							Something else
+						</a>
+					</p>
+				</div>
+			</section>
+			<footer class="modal-card-foot">
+				<button class="button is-success">Submit answer</button>
+				<button class="button is-danger">I don't know</button>
+			</footer>
+		</div>
+	</div>
+{/if}
+
 
 
 {#if !signedIn }
@@ -127,10 +173,10 @@
 		{/if}
     <div class="columns">
       <div class="column">
-        <button class="button is-large is-dark is-fullwidth is-success" on:click={handleFeeling} value="bored">Bored 😴</button>
+        <button class="button feeling-button is-large is-dark is-fullwidth is-success" on:click={handleFeeling} value="bored">Bored 😴</button>
       </div>
       <div class="column">
-        <button class="button is-large is-dark is-fullwidth is-danger" on:click={handleFeeling} value="confused">Confused 😕</button>
+        <button class="button feeling-button is-large is-dark is-fullwidth is-danger" on:click={handleFeeling} value="confused">Confused 😕</button>
       </div>
     </div>
     <hr/>
