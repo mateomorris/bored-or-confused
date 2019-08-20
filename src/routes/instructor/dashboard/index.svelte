@@ -149,14 +149,16 @@
 
 	function handleKeydown({key}) {
 
-    if (key === 'Enter' && (currentTopicIndex === topics.length - 1) & !editingTopicHeading) {
-      addTopic()
-    } if ((key === ' ' || key === 'ArrowRight') && currentTopicIndex != (topics.length -1)) {
-      changeToTopic(currentTopicIndex + 1)
-    } else if (key === 'ArrowLeft' && currentTopicIndex != 0) {
-      console.log(currentTopicIndex)
-      changeToTopic(currentTopicIndex - 1)
-    }
+    if (!creatingQuiz) {
+      if (key === 'Enter' && (currentTopicIndex === topics.length - 1) & !editingTopicHeading) {
+        addTopic()
+      } if ((key === ' ' || key === 'ArrowRight') && currentTopicIndex != (topics.length -1)) {
+        changeToTopic(currentTopicIndex + 1)
+      } else if (key === 'ArrowLeft' && currentTopicIndex != 0) {
+        console.log(currentTopicIndex)
+        changeToTopic(currentTopicIndex - 1)
+      }
+    } 
 	}
 
   let topicInput;
@@ -200,6 +202,11 @@
     }
   }
 
+  let currentQuiz = {
+    question: '',
+    answers: []
+  }
+
   let creatingQuiz;
   function addQuiz() {
     creatingQuiz = true;
@@ -215,13 +222,16 @@
     ],
   }
 
+  let allQuizes = [];
 
   let answers = [];
   let addingAnswer = false;
   let currentAnswer = {
     label : '',
-    corrent: false
+    correct: false,
   };
+  $: currentTopicQuiz = allQuizes.filter(q => q.topic === currentTopic)[0] || null;
+  $: currentTopicHasQuiz = currentTopicQuiz ? true : false;
 
   function startAddingAnswer() {
     addingAnswer = true;
@@ -235,8 +245,31 @@
     addingAnswer = false;
     currentAnswer = {
       label : '',
-      correct: false
+      correct: false,
     };
+  }
+
+
+  $: sendQuizDisabled = ((nAnswers, question) => nAnswers && question.length ? false : true)(answers.length, currentQuiz.question);
+  function saveQuiz() {
+    allQuizes = [
+      {
+        topic: currentTopic,
+        question: currentQuiz.question,
+        answers
+      },
+      ...allQuizes
+    ];
+
+    currentClass.update({ 
+      quizzes: allQuizes
+    });
+
+    creatingQuiz = false;
+  }
+
+  function sendQuiz() {
+    alert('sending quiz');
   }
 	
 </script>
@@ -274,7 +307,7 @@
 <svelte:window on:keydown={handleKeydown}/>
 
 {#if creatingQuiz }
-	<div class="modal is-active">
+	<div class="modal is-active" in:fade={{ duration: 250 }}>
 		<div class="modal-background"></div>
 		<div class="modal-card">
 			<header class="modal-card-head">
@@ -284,7 +317,7 @@
         <div class="field">
           <label class="label">Question</label>
           <div class="control">
-            <input class="input" type="text" placeholder="Quiz question">
+            <input class="input" type="text" placeholder="Quiz question" bind:value={currentQuiz.question}>
           </div>
         </div>
 				<div class="field is-grouped is-grouped-multiline">
@@ -318,7 +351,7 @@
         </div>
 			</section>
 			<footer class="modal-card-foot">
-				<button class="button is-dark" disabled>Send quiz</button>
+				<button class="button is-dark" disabled={sendQuizDisabled} on:click={saveQuiz}>Save quiz</button>
 			</footer>
 		</div>
 	</div>
@@ -365,6 +398,18 @@
               </form>
             {:else}
               <p class="title" on:click={() => { editingTopicHeading = true }}>{currentTopic}</p>
+              {#if currentTopicHasQuiz}
+                <hr>
+                <div class="content">
+                  <p><strong>{currentTopicQuiz.question}</strong></p>
+                  <ul>
+                    {#each currentTopicQuiz.answers as answer}
+                      <li>{answer.label} {#if answer.correct}✅{/if}</li>
+                    {/each}
+                  </ul>
+                  <button class="button is-link is-medium" on:click={sendQuiz}>Send Quiz</button>
+                </div>
+              {/if}
             {/if}
           {:else}
             <button class="button is-primary is-medium is-fullwidth" on:click={() => { topicsActive = true; editingTopicHeading = true; }}>Add a topic</button>
@@ -394,7 +439,9 @@
           <div class="card-content">
             <div class="buttons">
               <button class="button is-primary is-fullwidth" on:click={addTopic}>Add Topic</button>
-              <button class="button is-link is-fullwidth" on:click={addQuiz}>Add Quiz</button>
+              {#if !currentTopicHasQuiz}
+                <button class="button is-link is-fullwidth" on:click={addQuiz}>Add Quiz</button>
+              {/if}
             </div>
           </div>
         </div>
