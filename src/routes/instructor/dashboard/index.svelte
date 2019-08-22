@@ -54,6 +54,14 @@
   let topicsActive = false
 
 
+  class Quiz { 
+    constructor() {
+      this.question = '';
+      this.answers = [];
+    }
+  }
+
+
 
   onMount(() => {
 
@@ -81,7 +89,8 @@
           feedback: [],
           students: [],
           topics: [''],
-          activeTopic: ''
+          activeTopic: '',
+          quizActive: false
         })
       }
     });
@@ -98,6 +107,8 @@
           ...stuff,
           formattedTime: moment(stuff.created).fromNow()
         }));
+        allQuizes = data.quizzes;
+        allResponses = data.quizResponses;
       }
     });
   }) 
@@ -136,7 +147,8 @@
 
 		currentClass.update({ 
       topics,
-      activeTopic: topics[currentTopicIndex]
+      activeTopic: topics[currentTopicIndex],
+      quizActive: false
      });
   }
 
@@ -202,10 +214,8 @@
     }
   }
 
-  let currentQuiz = {
-    question: '',
-    answers: []
-  }
+  let currentQuiz = new Quiz();
+  $: console.log(currentQuiz)
 
   let creatingQuiz;
   function addQuiz() {
@@ -223,6 +233,8 @@
   }
 
   let allQuizes = [];
+  let allResponses = [];
+  $: responsesToCurrentTopic = allResponses ? allResponses.filter(r => r.topic === currentTopic) : []
 
   let answers = [];
   let addingAnswer = false;
@@ -230,7 +242,7 @@
     label : '',
     correct: false,
   };
-  $: currentTopicQuiz = allQuizes.filter(q => q.topic === currentTopic)[0] || null;
+  $: currentTopicQuiz = allQuizes ? allQuizes.filter(q => q.topic === currentTopic)[0] : null;
   $: currentTopicHasQuiz = currentTopicQuiz ? true : false;
 
   function startAddingAnswer() {
@@ -238,6 +250,10 @@
   }
 
   function addAnswer() {
+    currentQuiz.answers = [
+      currentAnswer,
+      ...answers
+    ]
     answers = [
       currentAnswer,
       ...answers
@@ -252,14 +268,22 @@
 
   $: sendQuizDisabled = ((nAnswers, question) => nAnswers && question.length ? false : true)(answers.length, currentQuiz.question);
   function saveQuiz() {
-    allQuizes = [
+    allQuizes = allQuizes ? [
       {
         topic: currentTopic,
         question: currentQuiz.question,
         answers
       },
-      ...allQuizes
+      ...allQuizes 
+    ] : [
+      {
+        topic: currentTopic,
+        question: currentQuiz.question,
+        answers
+      }
     ];
+
+    currentQuiz = new Quiz();
 
     currentClass.update({ 
       quizzes: allQuizes
@@ -269,7 +293,10 @@
   }
 
   function sendQuiz() {
-    alert('sending quiz');
+
+    currentClass.update({ 
+      quizActive: true
+    });
   }
 	
 </script>
@@ -409,6 +436,10 @@
                   </ul>
                   <button class="button is-link is-medium" on:click={sendQuiz}>Send Quiz</button>
                 </div>
+                {#each responsesToCurrentTopic as response}
+                  <h1>{response.name}
+                    {#if response.correct}✅{:else if !response.answer}‍‍‍🤷‍{:else}- {response.answer}{/if}</h1>
+                {/each}
               {/if}
             {/if}
           {:else}

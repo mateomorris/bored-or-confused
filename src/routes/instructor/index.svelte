@@ -33,7 +33,7 @@
 
     instructorsClass.onSnapshot(function(doc) {
       let data = doc.data();
-      console.log(data);
+      console.log(data.students);
       nStudents = data.students.length;
       allFeedback = data.feedback
         .sort((a, b) => (a.created < b.created) ? 1 : -1)

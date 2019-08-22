@@ -45,8 +45,8 @@
       class="button is-large is-fullwidth is-info"
       id="student-button" 
       href="/student" 
-      on:mouseover={() => { studentHover = true }} 
-      on:mouseout={() => { studentHover = false }}>
+      on:mouseover={() => studentHover = true} 
+      on:mouseout={() => studentHover = false}>
       {#if studentHover}
         <img alt='' src='student.svg' in:fade="{{ duration: 500 }}">
       {:else}
@@ -59,8 +59,8 @@
       class="button is-large is-fullwidth is-success instructor" 
       id="instructor-button" 
       href="/instructor"  
-      on:mouseover={() => { instructorHover = true }} 
-      on:mouseout={() => { instructorHover = false }}>
+      on:mouseover={() => instructorHover = true} 
+      on:mouseout={() => instructorHover = false}>
       {#if instructorHover}
         <img alt='' src='teacher.svg' in:fade="{{ duration: 500 }}" >
       {:else}

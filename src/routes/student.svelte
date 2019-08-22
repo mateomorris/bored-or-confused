@@ -27,7 +27,10 @@
   let currentClass;
 	let currentTopic;
 
-	let quizIsActive = true;
+	let quizIsActive = false;
+	let quizzes = [];
+	$: currentQuiz = quizzes ? quizzes.find(q => q.topic === currentTopic) : null
+	let currentAnswer;
 
 	function enterClass() {
 
@@ -52,6 +55,20 @@
 							...stuff,
 							formattedTime: moment(stuff.created).fromNow()
 						}));
+
+						quizzes = data.quizzes
+
+						// let alreadyAnswered = data.quizResponses.map(r => r.name).filter(r => r.topic === currentTopic).includes(name)
+						let alreadyAnswered = data.quizResponses ? data.quizResponses.filter(r => r.topic === currentTopic).map(r => r.name).includes(name) : null
+
+						if (alreadyAnswered) {
+							quizIsActive = false;
+						} else {
+							quizIsActive = data.quizActive;
+						}
+
+
+						console.log(data)
 					});
 				} else {
 					alert('Incorrect class ID');
@@ -70,9 +87,8 @@
 			});
 	}
 
-	function addName(name) {
+	function addName() {
 		signedIn = true;
-		name = name;
 
 		currentClass
 			.update({ 
@@ -95,6 +111,38 @@
 
 	}
 
+	function handleSubmitAnswer() {
+		quizIsActive = false;
+
+		currentClass
+			.update({ 
+				quizResponses: firebase.firestore.FieldValue.arrayUnion({
+					topic: currentTopic,
+					name,
+					answer: currentAnswer.label,
+					correct: currentAnswer.correct
+				})
+			});
+	}
+
+	function handleIDK() {
+		quizIsActive = false;
+
+		currentClass
+			.update({ 
+				quizResponses: firebase.firestore.FieldValue.arrayUnion({
+					topic: currentTopic,
+					name,
+					answer: null
+				})
+			});
+	}
+
+	function answerIsSelected() {
+		return currentAnswer && answer.label === currentAnswer.label
+	}
+
+
 	onDestroy(() => {
 		// leaveClass();
 	});
@@ -113,39 +161,30 @@
 	}
 </style>
 
-{#if quizIsActive }
+{#if quizIsActive && signedIn && currentQuiz}
 	<div class="modal is-active">
 		<div class="modal-background"></div>
 		<div class="modal-card">
 			<header class="modal-card-head">
-				<p class="modal-card-title">Assesment - Object Methods</p>
+				<p class="modal-card-title">Assesment - {currentTopic}</p>
 			</header>
 			<section class="modal-card-body">
 				<div class="content">
-					<!-- <h2>Second level</h2> -->
-					<p>What is the best way to make parmesan cheese without a microwave?</p>
+					<p>{currentQuiz.question}</p>
 				</div>
 				<div class="field is-grouped is-grouped-multiline">
-					<p class="control">
-						<a class="button">
-							With imagination
-						</a>
-					</p>
-					<p class="control">
-						<a class="button">
-							On top of the world
-						</a>
-					</p>
-					<p class="control">
-						<a class="button">
-							Something else
-						</a>
-					</p>
+					{#each currentQuiz.answers as answer, i}
+						<p class="control">
+							<button class={currentAnswer && currentAnswer.label === answer.label ? 'button is-light' : 'button'} on:click={() => currentAnswer = answer}>
+								{answer.label}
+							</button>
+						</p>
+					{/each}
 				</div>
 			</section>
 			<footer class="modal-card-foot">
-				<button class="button is-success">Submit answer</button>
-				<button class="button is-danger">I don't know</button>
+				<button class="button is-success" on:click={handleSubmitAnswer}>Submit answer</button>
+				<button class="button is-danger" on:click={handleIDK}>I don't know</button>
 			</footer>
 		</div>
 	</div>
@@ -153,7 +192,7 @@
 
 
 
-{#if !signedIn }
+{#if !signedIn}
 	<nav class="navbar is-light" role="navigation" aria-label="main navigation">
 		<div class="navbar-brand">
 			<a class="navbar-item site-logo title is-4" href="https://boredorconfused.com">Bored or Confused</a>
@@ -194,7 +233,7 @@
 						<input class="input is-large" type="text" placeholder="Class ID" bind:value={classId}>
 					</form>
 				{:else}
-					<form on:submit|preventDefault={() => { addName(name) }}>
+					<form on:submit|preventDefault={addName}>
 						<label class="label">Name</label>
 						<input class="input is-large" type="text" placeholder="Name" bind:value={name}>
 					</form>
