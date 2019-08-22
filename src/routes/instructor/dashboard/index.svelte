@@ -25,8 +25,12 @@
 
   import TopNav from './_wrapper.svelte'
 
+  import Modal from './_modal.svelte'
+  import StudentFeedback from './_StudentFeedback.svelte'
+
   import { showClassIdPopop } from '../../../components/classIdPopup'
 	import FeedbackReceived from '../../../components/FeedbackReceived.svelte';
+
 
   console.log(existingClassId)
 	let classId = existingClassId || uniqueId;
@@ -298,6 +302,18 @@
       quizActive: true
     });
   }
+
+
+  $: modalProps = {
+    currentQuiz,
+    addingAnswer,
+    currentAnswer,
+    sendQuizDisabled,
+    startAddingAnswer,
+    saveQuiz,
+    answers,
+    addAnswer
+  }
 	
 </script>
 
@@ -334,54 +350,7 @@
 <svelte:window on:keydown={handleKeydown}/>
 
 {#if creatingQuiz }
-	<div class="modal is-active" in:fade={{ duration: 250 }}>
-		<div class="modal-background"></div>
-		<div class="modal-card">
-			<header class="modal-card-head">
-				<p class="modal-card-title">Second Topic - Quiz</p>
-			</header>
-			<section class="modal-card-body">
-        <div class="field">
-          <label class="label">Question</label>
-          <div class="control">
-            <input class="input" type="text" placeholder="Quiz question" bind:value={currentQuiz.question}>
-          </div>
-        </div>
-				<div class="field is-grouped is-grouped-multiline">
-          {#if addingAnswer}
-            <div class="control">
-              <label class="checkbox">
-                <form on:submit|preventDefault={addAnswer}>
-                  <input class="input" type="text" placeholder="Answer" bind:value={currentAnswer.label}>
-                  <input type="checkbox" id="correct" bind:checked={currentAnswer.correct}>
-                  <label for="correct">Correct answer</label>
-                </form>
-              </label>
-            </div>
-          {:else}
-            <p class="control">
-              <a class="button is-light" on:click={startAddingAnswer}>
-                Add an answer
-              </a>
-            </p>
-          {/if}
-				</div>
-        <div class="content is-medium">
-          <ul>
-            {#each answers as answer}
-              <li>
-                {answer.label}
-                {#if answer.correct}✅{/if}
-              </li>
-            {/each}
-          </ul>
-        </div>
-			</section>
-			<footer class="modal-card-foot">
-				<button class="button is-dark" disabled={sendQuizDisabled} on:click={saveQuiz}>Save quiz</button>
-			</footer>
-		</div>
-	</div>
+  <Modal {...modalProps}/>
 {/if}
 
 <TopNav 
@@ -448,12 +417,7 @@
         </div>
       </div>
       <br>
-      {#each allFeedback as item (item.created)}
-        <!-- {#if (item.created >= clearDate) && (item.topic === currentTopic)} -->
-        {#if (item.topic === currentTopic)}
-          <FeedbackReceived item={item} key={item.created}/>
-        {/if}
-      {/each}
+      <StudentFeedback {allFeedback} {currentTopic}/>
     </div>
     {#if topicsActive }
       <div class="column is-one-fifth">
