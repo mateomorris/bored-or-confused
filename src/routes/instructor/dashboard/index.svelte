@@ -25,8 +25,12 @@
 
   import TopNav from './_wrapper.svelte'
 
+  import Modal from './_modal.svelte'
+  import StudentFeedback from './_StudentFeedback.svelte'
+
   import { showClassIdPopop } from '../../../components/classIdPopup'
 	import FeedbackReceived from '../../../components/FeedbackReceived.svelte';
+
 
   console.log(existingClassId)
 	let classId = existingClassId || uniqueId;
@@ -52,6 +56,14 @@
   $: nextTopic = topics[currentTopicIndex + 1]
   
   let topicsActive = false
+
+
+  class Quiz { 
+    constructor() {
+      this.question = '';
+      this.answers = [];
+    }
+  }
 
 
 
@@ -81,7 +93,8 @@
           feedback: [],
           students: [],
           topics: [''],
-          activeTopic: ''
+          activeTopic: '',
+          quizActive: false
         })
       }
     });
@@ -98,6 +111,8 @@
           ...stuff,
           formattedTime: moment(stuff.created).fromNow()
         }));
+        allQuizes = data.quizzes;
+        allResponses = data.quizResponses;
       }
     });
   }) 
@@ -136,7 +151,8 @@
 
 		currentClass.update({ 
       topics,
-      activeTopic: topics[currentTopicIndex]
+      activeTopic: topics[currentTopicIndex],
+      quizActive: false
      });
   }
 
@@ -149,14 +165,16 @@
 
 	function handleKeydown({key}) {
 
-    if (key === 'Enter' && (currentTopicIndex === topics.length - 1) & !editingTopicHeading) {
-      addTopic()
-    } if ((key === ' ' || key === 'ArrowRight') && currentTopicIndex != (topics.length -1)) {
-      changeToTopic(currentTopicIndex + 1)
-    } else if (key === 'ArrowLeft' && currentTopicIndex != 0) {
-      console.log(currentTopicIndex)
-      changeToTopic(currentTopicIndex - 1)
-    }
+    if (!creatingQuiz) {
+      if (key === 'Enter' && (currentTopicIndex === topics.length - 1) & !editingTopicHeading) {
+        addTopic()
+      } if ((key === ' ' || key === 'ArrowRight') && currentTopicIndex != (topics.length -1)) {
+        changeToTopic(currentTopicIndex + 1)
+      } else if (key === 'ArrowLeft' && currentTopicIndex != 0) {
+        console.log(currentTopicIndex)
+        changeToTopic(currentTopicIndex - 1)
+      }
+    } 
 	}
 
   let topicInput;
@@ -199,6 +217,103 @@
       return ''
     }
   }
+
+  let currentQuiz = new Quiz();
+  $: console.log(currentQuiz)
+
+  let creatingQuiz;
+  function addQuiz() {
+    creatingQuiz = true;
+  }
+
+  let quiz = {
+    question: '',
+    options: [
+      {
+        label: '',
+        isAnswer: false
+      }
+    ],
+  }
+
+  let allQuizes = [];
+  let allResponses = [];
+  $: responsesToCurrentTopic = allResponses ? allResponses.filter(r => r.topic === currentTopic) : []
+
+  let answers = [];
+  let addingAnswer = false;
+  let currentAnswer = {
+    label : '',
+    correct: false,
+  };
+  $: currentTopicQuiz = allQuizes ? allQuizes.filter(q => q.topic === currentTopic)[0] : null;
+  $: currentTopicHasQuiz = currentTopicQuiz ? true : false;
+
+  function startAddingAnswer() {
+    addingAnswer = true;
+  }
+
+  function addAnswer() {
+    currentQuiz.answers = [
+      currentAnswer,
+      ...answers
+    ]
+    answers = [
+      currentAnswer,
+      ...answers
+    ]
+    addingAnswer = false;
+    currentAnswer = {
+      label : '',
+      correct: false,
+    };
+  }
+
+
+  $: sendQuizDisabled = ((nAnswers, question) => nAnswers && question.length ? false : true)(answers.length, currentQuiz.question);
+  function saveQuiz() {
+    allQuizes = allQuizes ? [
+      {
+        topic: currentTopic,
+        question: currentQuiz.question,
+        answers
+      },
+      ...allQuizes 
+    ] : [
+      {
+        topic: currentTopic,
+        question: currentQuiz.question,
+        answers
+      }
+    ];
+
+    currentQuiz = new Quiz();
+
+    currentClass.update({ 
+      quizzes: allQuizes
+    });
+
+    creatingQuiz = false;
+  }
+
+  function sendQuiz() {
+
+    currentClass.update({ 
+      quizActive: true
+    });
+  }
+
+
+  $: modalProps = {
+    currentQuiz,
+    addingAnswer,
+    currentAnswer,
+    sendQuizDisabled,
+    startAddingAnswer,
+    saveQuiz,
+    answers,
+    addAnswer
+  }
 	
 </script>
 
@@ -233,6 +348,10 @@
 </style>
 
 <svelte:window on:keydown={handleKeydown}/>
+
+{#if creatingQuiz }
+  <Modal {...modalProps}/>
+{/if}
 
 <TopNav 
   students={students}
@@ -275,6 +394,22 @@
               </form>
             {:else}
               <p class="title" on:click={() => { editingTopicHeading = true }}>{currentTopic}</p>
+              {#if currentTopicHasQuiz}
+                <hr>
+                <div class="content">
+                  <p><strong>{currentTopicQuiz.question}</strong></p>
+                  <ul>
+                    {#each currentTopicQuiz.answers as answer}
+                      <li>{answer.label} {#if answer.correct}✅{/if}</li>
+                    {/each}
+                  </ul>
+                  <button class="button is-link is-medium" on:click={sendQuiz}>Send Quiz</button>
+                </div>
+                {#each responsesToCurrentTopic as response}
+                  <h1>{response.name}
+                    {#if response.correct}✅{:else if !response.answer}‍‍‍🤷‍{:else}- {response.answer}{/if}</h1>
+                {/each}
+              {/if}
             {/if}
           {:else}
             <button class="button is-primary is-medium is-fullwidth" on:click={() => { topicsActive = true; editingTopicHeading = true; }}>Add a topic</button>
@@ -282,12 +417,7 @@
         </div>
       </div>
       <br>
-      {#each allFeedback as item (item.created)}
-        <!-- {#if (item.created >= clearDate) && (item.topic === currentTopic)} -->
-        {#if (item.topic === currentTopic)}
-          <FeedbackReceived item={item} key={item.created}/>
-        {/if}
-      {/each}
+      <StudentFeedback {allFeedback} {currentTopic}/>
     </div>
     {#if topicsActive }
       <div class="column is-one-fifth">
@@ -302,7 +432,12 @@
             </p>
           </header>
           <div class="card-content">
-            <button class="button is-primary is-fullwidth" on:click={addTopic}>Add Topic</button>
+            <div class="buttons">
+              <button class="button is-primary is-fullwidth" on:click={addTopic}>Add Topic</button>
+              {#if !currentTopicHasQuiz}
+                <button class="button is-link is-fullwidth" on:click={addQuiz}>Add Quiz</button>
+              {/if}
+            </div>
           </div>
         </div>
       </div>
