@@ -24,6 +24,7 @@
 	import moment from 'moment';
 
   import TopNav from './_wrapper.svelte'
+  import Tabs from './_Tabs.svelte'
 
   import Modal from './_modal.svelte'
   import StudentFeedback from './_StudentFeedback.svelte'
@@ -138,7 +139,7 @@
     }
   }
 
-  function changeToTopic(index, goBack = false) {
+  function changeToTopic(index) {
     currentTopicIndex = index;
 		currentClass.update({ 
       activeTopic: topics[index]
@@ -184,12 +185,7 @@
   let indexOfTopicBeingDragged;
   let indexOfTopicBeingHovered;
 
-  function handleDragStart(e) {
-    topicBeingDragged = e.path[0]['text']
-    indexOfTopicBeingDragged = topics.indexOf(topicBeingDragged)
-  }
-
-  function handleDragEnd(e) {
+  function handleDragEnd() {
     let updatedTopics = topics.filter((i,key) => key != indexOfTopicBeingDragged) 
     updatedTopics.splice(indexOfTopicBeingHovered, 0, topicBeingDragged);
     updateTopicOrder(updatedTopics)
@@ -199,23 +195,9 @@
     indexOfTopicBeingHovered = null;
   }
 
-  function handleDragEnter(e) {
-    let topicBeingHovered = e.path[0]['text']
+  function handleDragEnter({detail}) {
+    let topicBeingHovered = detail.path[0]['text']
     indexOfTopicBeingHovered = topics.indexOf(topicBeingHovered)
-  }
-
-  function getTabClasses(index, indexOfTopicBeingHovered, indexOfTopicBeingDragged) {
-    if (index === indexOfTopicBeingDragged) {
-      return 'dragging'
-    } else if (indexOfTopicBeingHovered === index) {
-      if (indexOfTopicBeingHovered < indexOfTopicBeingDragged) {
-        return 'will-insert-left'
-      } else if (indexOfTopicBeingHovered > indexOfTopicBeingDragged) {
-        return 'will-insert-right'
-      } 
-    } else {
-      return ''
-    }
   }
 
   let currentQuiz = new Quiz();
@@ -314,6 +296,11 @@
     answers,
     addAnswer
   }
+
+  $: tabProps = {
+    topics,
+    currentTopicIndex
+  }
 	
 </script>
 
@@ -363,24 +350,11 @@
   <div class="columns">
     <div class="column main-content">
       {#if topics.length > 1 }
-        <div class="tabs" in:fly>
-          <ul>
-            {#each topics as topic, index}
-              <li class={currentTopicIndex === index && 'is-active'}>
-                <a 
-                  on:click={() => { changeToTopic(index) }} 
-                  draggable="true" 
-                  on:dragstart={handleDragStart}
-                  on:dragend={handleDragEnd}
-                  on:dragenter={handleDragEnter}
-                  class={`${getTabClasses(index, indexOfTopicBeingHovered, indexOfTopicBeingDragged)} tab-item`}
-                  >
-                    {topic}
-                  </a>
-              </li>
-            {/each}
-          </ul>
-        </div>
+        <Tabs
+          {...tabProps}
+          on:topicChange={({detail}) => changeToTopic(detail)}
+          on:updateTopicOrder={({detail}) => {updateTopicOrder(detail)}}
+        />
       {/if}
       <div class="card" in:fade>
         {#if topicsActive && !editingTopicHeading}
