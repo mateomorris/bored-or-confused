@@ -144,7 +144,8 @@
   function changeToTopic(index) {
     currentTopicIndex = index;
 		currentClass.update({ 
-      activeTopic: topics[index]
+      activeTopic: topics[index],
+      quizActive: false
      });
   }
 
@@ -271,6 +272,8 @@
         answers
       }
     ];
+
+    answers = [];
 
     currentQuiz = new Quiz();
 

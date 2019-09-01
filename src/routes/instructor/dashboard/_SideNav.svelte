@@ -22,9 +22,7 @@
   <div class="card-content">
     <div class="buttons">
       <button class="button is-primary is-fullwidth" on:click={() => dispatch('addTopic')}>Add Topic</button>
-      {#if !endOfLesson}
-        <button class="button is-link is-fullwidth" on:click={() => dispatch('addQuiz')}>Add Quiz</button>
-      {/if}
+      <button class="button is-link is-fullwidth" on:click={() => dispatch('addQuiz')}>Add Quiz</button>
     </div>
   </div>
 </div>
