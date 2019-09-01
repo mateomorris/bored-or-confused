@@ -1,36 +1,32 @@
 <script>
   import { fly, fade } from 'svelte/transition';
+  import { createEventDispatcher } from 'svelte';
+	const dispatch = createEventDispatcher();
 
   export let currentQuiz;
   export let addingAnswer;
-
   export let addAnswer;
-
   export let currentAnswer;
-
   export let sendQuizDisabled;
   export let startAddingAnswer
-
   export let saveQuiz
-
   export let answers;
-
-
 
 </script>	
   
   
-<div class="modal is-active" in:fade={{ duration: 250 }}>
-  <div class="modal-background"></div>
+<div class="modal is-active" in:fade={{ duration: 100 }} out:fade={{ duration: 100 }}>
+  <div class="modal-background" on:click={() => dispatch('modalClose')}></div>
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">Second Topic - Quiz</p>
+      <p class="modal-card-title">Create Quiz</p>
     </header>
     <section class="modal-card-body">
       <div class="field">
         <label class="label">Question</label>
         <div class="control">
-          <input class="input" type="text" placeholder="Quiz question" bind:value={currentQuiz.question}>
+          <!-- svelte-ignore a11y-autofocus -->
+          <input class="input" type="text" placeholder="Quiz question" bind:value={currentQuiz.question} autofocus>
         </div>
       </div>
       <div class="field is-grouped is-grouped-multiline">

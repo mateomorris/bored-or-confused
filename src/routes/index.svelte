@@ -17,19 +17,8 @@
     position: relative;
 	}
 
-  .button > img {
-    position: absolute;
-    width: 50%;
-    pointer-events: none;
-  }
-
   #student-button {
     background-image: url('static/student.svg');
-  }
-
-  #student-button > img {
-    position: absolute;
-    width: 50%;
   }
 
   #instructor-button {
@@ -40,11 +29,6 @@
     text-align: center;
   }
 
-  .illustration > svg {
-    height: 35vh;
-    margin-top: 5rem;
-    margin-bottom: 5rem;
-  }
 </style>
 
 <h1 class="title">Bored or Confused</h1>

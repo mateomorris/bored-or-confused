@@ -28,9 +28,11 @@
 
   import Modal from './_modal.svelte'
   import StudentFeedback from './_StudentFeedback.svelte'
+  import SideNav from './_SideNav.svelte'
 
   import { showClassIdPopop } from '../../../components/classIdPopup'
 	import FeedbackReceived from '../../../components/FeedbackReceived.svelte';
+  import TopicCard from './_TopicCard.svelte'
 
 
   console.log(existingClassId)
@@ -51,7 +53,7 @@
   let editingTopicHeading = false;
 
   let currentTopicIndex = 0;
-  let topics = [''];
+  let topics = [];
   let typedTopic = topics[currentTopicIndex];
   $: currentTopic = topics[currentTopicIndex]
   $: nextTopic = topics[currentTopicIndex + 1]
@@ -77,7 +79,7 @@
         let { students, feedback, topics } = data;
         let dataEmpty = [ ...students, ...feedback, ...topics].length > 0 ? false : true;
         if (!dataEmpty) { // Already has data, populate local data
-          topicsActive = data.topics.length > 1 ? true : false
+          topicsActive = data.topics.length > 0 ? true : false
           currentTopicIndex = data.topics.indexOf(data.activeTopic)
           students = data.students
           topics = data.topics
@@ -89,11 +91,10 @@
           }));
         }
       } else { // Doesn't exist yet
-        console.warn('Doesnt exist yet')
         currentClass.set({ 
           feedback: [],
           students: [],
-          topics: [''],
+          topics: [],
           activeTopic: '',
           quizActive: false
         })
@@ -105,6 +106,7 @@
       if (data) {
         currentTopicIndex = data.topics.indexOf(data.activeTopic);
         topics = data.topics;
+        console.log(topics)
         students = data.students;
         allFeedback = data.feedback
           .sort((a, b) => (a.created < b.created) ? 1 : -1)
@@ -118,9 +120,9 @@
     });
   }) 
 
-  function editTopic() {
+  function editTopic(updatedTopic) {
     editingTopicHeading = false
-    topics = topics.map(topic => topic == '' ? typedTopic : topic)
+    topics = topics.map(topic => topic === '' ? updatedTopic : topic)
 
 		currentClass.update({ 
       topics,
@@ -129,14 +131,14 @@
   }
 
   function addTopic() {
+    console.log(topics)
+    topicsActive = true;
     editingTopicHeading = true
     typedTopic = '';
     topics = [ ...topics, '' ]
     currentTopicIndex = topics.length - 1
-    if (topicInput) {
-      topicInput.focus()
-      // TODO: Get this to work
-    }
+
+    console.log(topics)
   }
 
   function changeToTopic(index) {
@@ -204,9 +206,6 @@
   $: console.log(currentQuiz)
 
   let creatingQuiz;
-  function addQuiz() {
-    creatingQuiz = true;
-  }
 
   let quiz = {
     question: '',
@@ -216,6 +215,10 @@
         isAnswer: false
       }
     ],
+  }
+
+  function createNewQuiz() {
+    creatingQuiz = true;
   }
 
   let allQuizes = [];
@@ -314,30 +317,15 @@
   .main-content {
     overflow: scroll;
   }
-  .delete {
-    right: 0.5rem;
-    position: absolute;
-    top: 0.5rem;
-  }
-  .will-insert-left {
-    border-left: 1px solid gainsboro;
-    margin-left: -1px;
-  }
-  .will-insert-right {
-    border-right: 1px solid gainsboro;
-    margin-right: -1px;
-  }
-  .tab-item.dragging {
-    background-color: whitesmoke;
-    transition: 0.25s background-color;
-    will-change: transition;
-  }
 </style>
 
 <svelte:window on:keydown={handleKeydown}/>
 
 {#if creatingQuiz }
-  <Modal {...modalProps}/>
+  <Modal 
+    {...modalProps}
+    on:modalClose={() => creatingQuiz = false}
+  />
 {/if}
 
 <TopNav 
@@ -349,21 +337,33 @@
   <hr/>
   <div class="columns">
     <div class="column main-content">
-      {#if topics.length > 1 }
+      {#if topics.length > 0 }
         <Tabs
           {...tabProps}
           on:topicChange={({detail}) => changeToTopic(detail)}
           on:updateTopicOrder={({detail}) => {updateTopicOrder(detail)}}
         />
       {/if}
-      <div class="card" in:fade>
+      <TopicCard 
+        topic={currentTopic}
+        quiz={currentTopicQuiz}
+        responses={responsesToCurrentTopic}
+        editing={editingTopicHeading}
+        allowRemove={topicsActive && !editingTopicHeading}
+        showTopics={topicsActive}
+        on:removeTopic={removeTopic}
+        on:sendQuiz={sendQuiz}
+        on:addTopic={addTopic}
+        on:editTopic={({detail}) => editTopic(detail)}
+      />
+      <!-- <div class="card" in:fade>
         {#if topicsActive && !editingTopicHeading}
           <button class="delete" on:click={removeTopic} in:fade></button>
         {/if}
         <div class="card-content">
           {#if topicsActive}
             {#if editingTopicHeading}
-              <form on:submit={editTopic}>
+              <form on:submit|preventDefault={editTopic}>
                 <input class="input is-large" type="text" placeholder="Topic" bind:value={typedTopic} bind:this={topicInput}>
               </form>
             {:else}
@@ -389,31 +389,18 @@
             <button class="button is-primary is-medium is-fullwidth" on:click={() => { topicsActive = true; editingTopicHeading = true; }}>Add a topic</button>
           {/if}
         </div>
-      </div>
+      </div> -->
       <br>
       <StudentFeedback {allFeedback} {currentTopic}/>
     </div>
     {#if topicsActive }
       <div class="column is-one-fifth">
-        <div class="card">
-          <header class="card-header">
-            <p class="card-header-title">
-            {#if (currentTopicIndex >= 2) && (topics.length -1 <= currentTopicIndex)}
-                End of Lesson
-            {:else}
-                Next Topic
-            {/if}
-            </p>
-          </header>
-          <div class="card-content">
-            <div class="buttons">
-              <button class="button is-primary is-fullwidth" on:click={addTopic}>Add Topic</button>
-              {#if !currentTopicHasQuiz}
-                <button class="button is-link is-fullwidth" on:click={addQuiz}>Add Quiz</button>
-              {/if}
-            </div>
-          </div>
-        </div>
+        <SideNav 
+          endOfLesson={(currentTopicIndex >= 2) && (topics.length -1 <= currentTopicIndex)}
+          canAddQuiz={currentTopicHasQuiz}
+          on:addQuiz={createNewQuiz}
+          on:addTopic={addTopic}
+        />
       </div>
     {/if}
   </div>

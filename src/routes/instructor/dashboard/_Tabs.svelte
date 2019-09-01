@@ -48,6 +48,22 @@
 
 </script>
 
+<style>
+  .will-insert-left {
+    border-left: 1px solid gainsboro;
+    margin-left: -1px;
+  }
+  .will-insert-right {
+    border-right: 1px solid gainsboro;
+    margin-right: -1px;
+  }
+  .tab-item.dragging {
+    background-color: whitesmoke;
+    transition: 0.25s background-color;
+    will-change: transition;
+  }
+</style>
+
 <div class="tabs" in:fly>
   <ul>
     {#each topics as topic, index}
