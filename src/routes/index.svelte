@@ -1,8 +1,10 @@
 <script>
 	import { fade, fly, draw } from 'svelte/transition';
+  import Illustration from '../components/Illustration.svelte';
 
   let studentHover = false;
   let instructorHover = false;
+
 </script>
 
 <svelte:head>
@@ -11,7 +13,7 @@
 
 <style>
 	.button {
-		height: 50vh;
+		height: 20vh;
     position: relative;
 	}
 
@@ -33,12 +35,25 @@
   #instructor-button {
     background-image: url('static/teacher.svg');
   }
+
+  .illustration {
+    text-align: center;
+  }
+
+  .illustration > svg {
+    height: 35vh;
+    margin-top: 5rem;
+    margin-bottom: 5rem;
+  }
 </style>
 
 <h1 class="title">Bored or Confused</h1>
 <h2 class="subtitle">
   A tool for discreetly giving feedback to an instructor while they're lecturing. Great for introverts.
 </h2>
+<div class="illustration">
+  <Illustration {studentHover} {instructorHover}/>
+</div>
 <div class="columns">
   <div class="column">
     <a 
