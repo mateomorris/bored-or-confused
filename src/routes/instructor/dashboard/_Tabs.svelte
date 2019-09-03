@@ -46,6 +46,26 @@
     }
   }
 
+  let tabs = [];
+
+  function scrollIntoView(node) {
+
+    if (node.className === 'is-active') {
+      node.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+    }
+
+    return {
+      delay: 0
+    }
+  }
+
+	function handleKeydown({key}) {
+    if (key === ' ' || key === 'ArrowLeft' || key === 'ArrowRight') {
+      let activeTab = [...tabs.children].find(tab => tab.className === 'is-active');
+      activeTab.scrollIntoView();
+    }
+	}
+
 </script>
 
 <style>
@@ -64,12 +84,14 @@
   }
 </style>
 
+<svelte:window on:keydown={handleKeydown}/>
+
 <div class="tabs" in:fly>
-  <ul>
+  <ul bind:this={tabs}>
     {#each topics as topic, index}
-      <li class={currentTopicIndex === index && 'is-active'}>
+      <li class={currentTopicIndex === index ? 'is-active' : ''} in:scrollIntoView>
         <a 
-          on:click={e => dispatch('topicChange', index)} 
+          on:click={e => dispatch('topicChange', index)}
           draggable="true" 
           on:dragstart={handleDragStart}
           on:dragend={handleDragEnd}

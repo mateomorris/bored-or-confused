@@ -131,14 +131,11 @@
   }
 
   function addTopic() {
-    console.log(topics)
     topicsActive = true;
     editingTopicHeading = true
     typedTopic = '';
     topics = [ ...topics, '' ]
     currentTopicIndex = topics.length - 1
-
-    console.log(topics)
   }
 
   function changeToTopic(index) {
