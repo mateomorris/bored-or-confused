@@ -106,7 +106,6 @@
       if (data) {
         currentTopicIndex = data.topics.indexOf(data.activeTopic);
         topics = data.topics;
-        console.log(topics)
         students = data.students;
         allFeedback = data.feedback
           .sort((a, b) => (a.created < b.created) ? 1 : -1)
