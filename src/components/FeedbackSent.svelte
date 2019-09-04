@@ -1,7 +1,7 @@
 <script>
   import { fade } from 'svelte/transition';
 
-  export let item;
+  export let label;
 </script>
 
 <div class="box" transition:fade="{{ duration: 250 }}">
@@ -11,7 +11,7 @@
         <div class="level-left">
           <div class="content">
             <p>
-              <strong>Feedback sent</strong> {item.formattedTime}
+              {@html label}
             </p>
           </div>
         </div>

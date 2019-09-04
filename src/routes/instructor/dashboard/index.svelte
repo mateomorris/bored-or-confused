@@ -115,6 +115,7 @@
         }));
         allQuizes = data.quizzes;
         allResponses = data.quizResponses;
+        allQuestions = data.questions;
       }
     });
   }) 
@@ -288,6 +289,11 @@
   }
 
 
+  let allQuestions = [];
+
+  $: questionsAndFeedback = [...allQuestions, ...allFeedback].sort((a, b) => (a.created < b.created) ? 1 : -1)
+
+
   $: modalProps = {
     currentQuiz,
     addingAnswer,
@@ -355,6 +361,20 @@
         on:addTopic={addTopic}
         on:editTopic={({detail}) => editTopic(detail)}
       />
+      <hr>
+      {#each questionsAndFeedback as item}
+        {#if item.feeling}
+          <FeedbackReceived item={item} key={item.created}/>
+        {:else}
+         <div class="card" in:fade>
+          <div class="card-content">
+            <p class="title is-4">{item.question}</p>
+            <p class="subtitle is-5">{item.name} ({moment(item.created).fromNow()})</p>
+          </div>
+         </div>
+         <br>
+        {/if}
+      {/each}
       <!-- <div class="card" in:fade>
         {#if topicsActive && !editingTopicHeading}
           <button class="delete" on:click={removeTopic} in:fade></button>
@@ -389,8 +409,6 @@
           {/if}
         </div>
       </div> -->
-      <br>
-      <StudentFeedback {allFeedback} {currentTopic}/>
     </div>
     {#if topicsActive }
       <div class="column is-one-fifth">

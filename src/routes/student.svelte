@@ -146,6 +146,52 @@
 	onDestroy(() => {
 		// leaveClass();
 	});
+
+
+	// class Question {
+	// 	constructor(question) {
+	// 		this.question = question
+	// 		this.created = Date.now()
+	// 		this.topic = currentTopic
+	// 	}
+
+	// 	getPlainObject() {
+	// 		return {...this}
+	// 	}
+	// }
+
+	function Question(p = {}) {
+		return {
+			question: currentQuestion,
+			created: Date.now(),
+			topic: currentTopic,
+			...p
+		}
+	}
+
+
+	let currentQuestion = '';
+	let questions = [];
+	function submitQuestion() {
+		currentClass
+			.update({ 
+				questions: firebase.firestore.FieldValue.arrayUnion(
+					// new Question(currentQuestion).getPlainObject()
+					Question({ name })
+				)
+			});
+
+		questions = [
+			// new Question(currentQuestion), 
+			Question(),
+			...questions
+		];
+		currentQuestion = '';
+
+	}
+
+	$: feedbackAndQuestions = [...feedback, ...questions].sort((a, b) => (a.created < b.created) ? 1 : -1)
+	$: console.log(feedbackAndQuestions)
 	
 </script>
 
@@ -218,12 +264,30 @@
         <button class="button feeling-button is-large is-dark is-fullwidth is-danger" on:click={handleFeeling} value="confused">Confused 😕</button>
       </div>
     </div>
+		<form on:submit|preventDefault={submitQuestion}>
+			<div class="field has-addons">
+				<div class="control is-expanded">
+					<input class="input is-medium" type="text" placeholder="Ask a question" bind:value={currentQuestion}>
+				</div>
+				<div class="control">
+					<input type="submit" class="button is-info is-medium" value="Ask" />
+				</div>
+			</div>
+		</form>
     <hr/>
-    {#each feedback as item (item.created)}
-		  {#if (item.created >= clearDate) && (item.topic === currentTopic)}
-      	<FeedbackSent item={item}/>
-    	{/if}
-    {/each}
+		<div class="columns">
+			<div class="column">
+				{#each feedbackAndQuestions as item (item.created)}
+					{#if (item.created >= clearDate) && (item.topic === currentTopic)}
+						{#if item.feeling }
+							<FeedbackSent label={`<strong>Feedback sent</strong> ${item.formattedTime}`}/>
+						{:else}
+							<FeedbackSent label={`<strong>Question asked:</strong> ${item.question.substring(0, 20)}...`}/>
+						{/if}
+					{/if}
+				{/each}
+			</div>
+		</div>
   {:else}
     <div class="field">
       <div class="control">
@@ -235,7 +299,7 @@
 				{:else}
 					<form on:submit|preventDefault={addName}>
 						<label class="label">Name</label>
-						<input class="input is-large" type="text" placeholder="Name" bind:value={name}>
+						<input class="input is-large" type="text" placeholder="Name" bind:value={name} autofocus>
 					</form>
 				{/if}
       </div>
