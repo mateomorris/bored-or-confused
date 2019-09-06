@@ -95,6 +95,7 @@
           feedback: [],
           students: [],
           topics: [],
+          questions: [],
           activeTopic: '',
           quizActive: false
         })
