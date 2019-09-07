@@ -4,6 +4,6 @@ exports.handler = function(event, context, callback) {
     console.log(moment)
     callback(null, {
       statusCode: 200,
-      body: "Hello, World"
+      body: moment().format();  
     });
 }
