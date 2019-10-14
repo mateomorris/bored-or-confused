@@ -33,7 +33,7 @@
 
 <h1 class="title">Bored or Confused</h1>
 <h2 class="subtitle">
-  A tool for discreetly giving feedback to an instructor while they're lecturing. Great for introverts.
+  A tool for getting questions and feedback from students while lecturing. Great for introverts.
 </h2>
 <div class="illustration">
   <Illustration {studentHover} {instructorHover}/>
