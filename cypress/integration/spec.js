@@ -62,7 +62,7 @@ describe('Instructor Screen', () => {
 
 	it('deletes a middle topic', () => {
 		cy.get('#tab-item-2').click();
-		deleteTopic(4, 'This is the second topic');
+		deleteTopic(3, 'This is the second topic');
 	});
 
 	function addTopic(position, title) {
