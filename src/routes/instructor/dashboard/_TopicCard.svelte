@@ -35,7 +35,7 @@
         <form on:submit|preventDefault={() => {dispatch('editTopic', typedTopic); typedTopic = '';}}>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input is-large" type="text" placeholder="Topic" bind:value={typedTopic} id="topic" autofocus>
+              <input class="input is-large" type="text" placeholder="Topic" bind:value={typedTopic} id="topic">
             </div>
             <div class="control">
               <button class="button is-link is-large"  type="submit" id="submit-topic">

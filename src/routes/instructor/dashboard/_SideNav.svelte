@@ -6,8 +6,22 @@
 
   export let endOfLesson;
   export let canAddQuiz;
+  export let editingTopicHeading;
+  export let creatingQuiz;
+  
+
+	function handleKeydown({key}) {
+
+    if (!creatingQuiz && !editingTopicHeading) {
+      if (key === 'Enter' ) {
+        dispatch('addTopic')
+      } 
+    } 
+	}
 
 </script>
+
+<svelte:window on:keydown={handleKeydown}/>
 
 <div class="card">
   <header class="card-header">

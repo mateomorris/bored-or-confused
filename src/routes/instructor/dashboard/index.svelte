@@ -170,9 +170,7 @@
 	function handleKeydown({key}) {
 
     if (!creatingQuiz) {
-      if (key === 'Enter' && (currentTopicIndex === topics.length - 1) & !editingTopicHeading) {
-        addTopic()
-      } if ((key === ' ' || key === 'ArrowRight') && currentTopicIndex != (topics.length -1)) {
+      if ((key === ' ' || key === 'ArrowRight') && currentTopicIndex != (topics.length -1)) {
         changeToTopic(currentTopicIndex + 1)
       } else if (key === 'ArrowLeft' && currentTopicIndex != 0) {
         console.log(currentTopicIndex)
@@ -204,7 +202,6 @@
   }
 
   let currentQuiz = new Quiz();
-  $: console.log(currentQuiz)
 
   let creatingQuiz;
 
@@ -378,44 +375,12 @@
          <br>
         {/if}
       {/each}
-      <!-- <div class="card" in:fade>
-        {#if topicsActive && !editingTopicHeading}
-          <button class="delete" on:click={removeTopic} in:fade></button>
-        {/if}
-        <div class="card-content">
-          {#if topicsActive}
-            {#if editingTopicHeading}
-              <form on:submit|preventDefault={editTopic}>
-                <input class="input is-large" type="text" placeholder="Topic" bind:value={typedTopic} bind:this={topicInput}>
-              </form>
-            {:else}
-              <p class="title" on:click={() => { editingTopicHeading = true }}>{currentTopic}</p>
-              {#if currentTopicHasQuiz}
-                <hr>
-                <div class="content">
-                  <p><strong>{currentTopicQuiz.question}</strong></p>
-                  <ul>
-                    {#each currentTopicQuiz.answers as answer}
-                      <li>{answer.label} {#if answer.correct}✅{/if}</li>
-                    {/each}
-                  </ul>
-                  <button class="button is-link is-medium" on:click={sendQuiz}>Send Quiz</button>
-                </div>
-                {#each responsesToCurrentTopic as response}
-                  <h1>{response.name}
-                    {#if response.correct}✅{:else if !response.answer}‍‍‍🤷‍{:else}- {response.answer}{/if}</h1>
-                {/each}
-              {/if}
-            {/if}
-          {:else}
-            <button class="button is-primary is-medium is-fullwidth" on:click={() => { topicsActive = true; editingTopicHeading = true; }}>Add a topic</button>
-          {/if}
-        </div>
-      </div> -->
     </div>
     {#if topicsActive }
       <div class="column is-one-fifth">
         <SideNav 
+          {creatingQuiz}
+          {editingTopicHeading}
           endOfLesson={(currentTopicIndex >= 2) && (topics.length -1 <= currentTopicIndex)}
           canAddQuiz={currentTopicHasQuiz}
           on:addQuiz={createNewQuiz}
