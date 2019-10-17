@@ -33,7 +33,16 @@
     {#if showTopics}
       {#if editing}
         <form on:submit|preventDefault={() => {dispatch('editTopic', typedTopic); typedTopic = '';}}>
-          <input class="input is-large" type="text" placeholder="Topic" bind:value={typedTopic} autofocus>
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <input class="input is-large" type="text" placeholder="Topic" bind:value={typedTopic} id="topic" autofocus>
+            </div>
+            <div class="control">
+              <button class="button is-link is-large"  type="submit" id="submit-topic">
+                Submit
+              </button>
+            </div>
+          </div>
         </form>
       {:else}
         <p class="title" on:click={() => { editingTopicHeading = true }}>{topic}</p>
@@ -55,7 +64,7 @@
         {/if}
       {/if}
     {:else}
-      <button class="button is-primary is-medium is-fullwidth" on:click={() => {editingTopicHeading = true; dispatch('addTopic')}}>Add a topic</button>
+      <button class="button is-primary is-medium is-fullwidth" on:click={() => {editingTopicHeading = true; dispatch('addTopic')}} id="add-topic">Add a topic</button>
     {/if}
   </div>
 </div>

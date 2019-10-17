@@ -293,12 +293,21 @@
       <div class="control">
 				{#if !inClass}
 					<form on:submit|preventDefault={enterClass}>
-						<label class="label">Class ID</label>
-						<input class="input is-large" type="text" placeholder="Class ID" bind:value={classId}>
+						<label class="label">Enter the Class ID</label>
+						<div class="field has-addons">
+							<div class="control is-expanded">
+								<input class="input is-large" type="text" placeholder="Class ID" bind:value={classId} autofocus>
+							</div>
+							<div class="control">
+								<button class="button is-link is-large"  type="submit">
+									Join
+								</button>
+							</div>
+						</div>
 					</form>
 				{:else}
 					<form on:submit|preventDefault={addName}>
-						<label class="label">Name</label>
+						<label class="label">What's your name?</label>
 						<input class="input is-large" type="text" placeholder="Name" bind:value={name} autofocus>
 					</form>
 				{/if}

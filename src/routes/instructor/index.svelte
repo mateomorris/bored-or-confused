@@ -64,7 +64,7 @@
 	<h1 class="title">Bored or Confused - Instructor</h1>
   <div class="columns">
     <div class="column">
-      <button class="button is-large is-dark is-fullwidth" on:click={() => joiningExistingClass = true} value="bored">Join existing class</button>
+      <button class="button is-large is-dark is-fullwidth" on:click={() => joiningExistingClass = true} id="join-class">Join existing class</button>
       {#if joiningExistingClass }
         <br />
 				<form on:submit|preventDefault={() => { sapper.goto(`/instructor/dashboard/${existingClassId}`) }}>
@@ -84,7 +84,7 @@
       {/if}
     </div>
     <div class="column">
-      <a class="button is-large is-dark is-fullwidth" href="/instructor/dashboard" value="confused">Create new class</a>
+      <a class="button is-large is-dark is-fullwidth" href="/instructor/dashboard" id="create-class">Create new class</a>
     </div>
   </div>
 </div>

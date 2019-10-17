@@ -5,6 +5,7 @@
 <script>
 	import ShortUniqueId from 'short-unique-id';
   import * as sapper from '@sapper/app';
+  import  _ from 'lodash'
 
   export let existingClassId;
 
@@ -151,9 +152,10 @@
     let i = currentTopicIndex;
     topics = topics.slice(0, i).concat(topics.slice(i + 1, topics.length));
 
+    const newActiveTopic = currentTopicIndex - 1;
 		currentClass.update({ 
       topics,
-      activeTopic: topics[currentTopicIndex],
+      activeTopic: topics[newActiveTopic],
       quizActive: false
      });
   }

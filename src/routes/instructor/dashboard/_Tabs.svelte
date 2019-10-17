@@ -96,6 +96,7 @@
           on:dragstart={handleDragStart}
           on:dragend={handleDragEnd}
           on:dragenter={handleDragEnter}
+          id="tab-item-{index}"
           class={`${getTabClasses(index, indexOfTopicBeingHovered, indexOfTopicBeingDragged)} tab-item`}
           >
             {topic}
