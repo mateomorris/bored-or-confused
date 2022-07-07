@@ -14,7 +14,7 @@
   "dependencies": {
     "compression": "^1.7.1",
     "firebase": "^6.3.3",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "polka": "next",
     "rxfire": "^3.6.8",
     "rxjs": "^6.5.2",
